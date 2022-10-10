@@ -7,6 +7,7 @@ namespace lve
 {
     LveAppBase::LveAppBase()
     {
+        loadModels();
         createPipelineLayout();
         createPipeline();
         createCommandBuffers();
@@ -22,6 +23,36 @@ namespace lve
             drawFrame();
         }
         vkDeviceWaitIdle(lveDevice.device());
+    }
+
+    void LveAppBase::sierpinski(
+        std::vector<LveModel::Vertex> &vertices,
+        int depth,
+        glm::vec2 left,
+        glm::vec2 right,
+        glm::vec2 top)
+    {
+        if (depth <= 0)
+        {
+            vertices.push_back({top, {1.0f, 0.0f, 0.0f}});
+            vertices.push_back({right, {0.0f, 1.0f, 0.0f}});
+            vertices.push_back({left, {0.0f, 0.0f, 1.0f}});
+        }
+        else
+        {
+            auto leftTop = 0.5f * (left + top);
+            auto rightTop = 0.5f * (right + top);
+            auto leftRight = 0.5f * (left + right);
+            sierpinski(vertices, depth - 1, left, leftRight, leftTop);
+            sierpinski(vertices, depth - 1, leftRight, right, rightTop);
+            sierpinski(vertices, depth - 1, leftTop, rightTop, top);
+        }
+    }
+    void LveAppBase::loadModels()
+    {
+        std::vector<LveModel::Vertex> vertices{};
+        sierpinski(vertices, 1, {-0.5f, 0.5f}, {0.5f, 0.5f}, {0.0f, -0.5f});
+        lveModel = std::make_unique<LveModel>(lveDevice, vertices);
     }
 
     void LveAppBase::createPipelineLayout()
@@ -86,7 +117,7 @@ namespace lve
             renderPassInfo.renderArea.extent = lveSwapChain.getSwapChainExtent();
 
             std::array<VkClearValue, 2> clearValues{};
-            clearValues[0].color = {0.2f, 0.2f, 0.2f, 1.0f};
+            clearValues[0].color = {0.0f, 0.0f, 0.0f, 1.0f};
             clearValues[1].depthStencil = {1.0f, 0};
             renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
             renderPassInfo.pClearValues = clearValues.data();
@@ -94,6 +125,8 @@ namespace lve
             vkCmdBeginRenderPass(commandBuffers[i], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 
             lvePipeline->bind(commandBuffers[i]);
+            lveModel->bind(commandBuffers[i]);
+            lveModel->draw(commandBuffers[i]);
             vkCmdDraw(commandBuffers[i], 3, 1, 0, 0);
 
             vkCmdEndRenderPass(commandBuffers[i]);
