@@ -1,6 +1,7 @@
 #include "lve_swap_chain.hpp"
 
 // std
+#include <memory.h>
 #include <array>
 #include <cstdlib>
 #include <cstring>
@@ -14,6 +15,19 @@ namespace lve
 
     LveSwapChain::LveSwapChain(LveDevice &deviceRef, VkExtent2D extent)
         : device{deviceRef}, windowExtent{extent}
+    {
+        init();
+    }
+
+    LveSwapChain::LveSwapChain(
+        LveDevice &deviceRef, VkExtent2D extent, std::shared_ptr<LveSwapChain> previous)
+        : device{deviceRef}, windowExtent{extent}, oldSwapChain{previous}
+    {
+        init();
+        oldSwapChain = nullptr;
+    }
+
+    void LveSwapChain::init()
     {
         createSwapChain();
         createImageViews();
@@ -179,6 +193,8 @@ namespace lve
         createInfo.clipped = VK_TRUE;
 
         createInfo.oldSwapchain = VK_NULL_HANDLE;
+
+        createInfo.oldSwapchain = oldSwapChain == nullptr ? VK_NULL_HANDLE : oldSwapChain->swapChain;
 
         if (vkCreateSwapchainKHR(device.device(), &createInfo, nullptr, &swapChain) != VK_SUCCESS)
         {
