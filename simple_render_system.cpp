@@ -16,9 +16,8 @@ namespace lve
 
     struct SimplePushConstantData
     {
-        glm::mat2 transform{1.f};
-        glm::vec2 offset;
-        alignas(16) glm::vec3 color;
+        glm::mat4 transform{1.f};
+        alignas(16) glm::vec3 color{};
     };
 
     SimpleRenderSystem::SimpleRenderSystem(LveDevice &device, VkRenderPass renderPass)
@@ -71,20 +70,18 @@ namespace lve
     void SimpleRenderSystem::renderGameObjects(
         VkCommandBuffer commandBuffer, std::vector<LveGameObject> &gameObjects)
     {
-        int i = 0;
+
         for (auto &obj : gameObjects)
         {
-            i += 1;
-            obj.transform2d.rotation =
-                glm::mod<float>(obj.transform2d.rotation + 0.001f * i, 2.f * glm::pi<float>());
+            obj.transform.rotation.y = glm::mod(obj.transform.rotation.y + 0.01f, glm::two_pi<float>());
+            obj.transform.rotation.x = glm::mod(obj.transform.rotation.x + 0.005f, glm::two_pi<float>());
         }
         lvePipeline->bind(commandBuffer);
         for (auto &obj : gameObjects)
         {
             SimplePushConstantData push{};
-            push.offset = obj.transform2d.translation;
             push.color = obj.color;
-            push.transform = obj.transform2d.mat2();
+            push.transform = obj.transform.mat4();
 
             vkCmdPushConstants(
                 commandBuffer,
