@@ -52,7 +52,7 @@ namespace lve
         std::vector<VkCommandBuffer> commandBuffers;
 
         uint32_t currentImageIndex{0};
-        int currentFrameIndex;
+        int currentFrameIndex{0};
         bool isFrameStarted{false};
     };
 }
