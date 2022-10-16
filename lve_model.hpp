@@ -1,10 +1,14 @@
 #pragma once
 
+#include "lve_buffer.hpp"
 #include "lve_device.hpp"
+
+// libs
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
 #include <glm/glm.hpp>
 
+// std
 #include <memory>
 #include <vector>
 
@@ -22,6 +26,7 @@ namespace lve
 
             static std::vector<VkVertexInputBindingDescription> getBindingDescriptions();
             static std::vector<VkVertexInputAttributeDescription> getAttributeDescriptions();
+
             bool operator==(const Vertex &other) const
             {
                 return position == other.position && color == other.color && normal == other.normal &&
@@ -54,14 +59,12 @@ namespace lve
         void createIndexBuffers(const std::vector<uint32_t> &indices);
 
         LveDevice &lveDevice;
-        VkBuffer vertexBuffer;
-        VkDeviceMemory vertexBufferMemory;
+
+        std::unique_ptr<LveBuffer> vertexBuffer;
         uint32_t vertexCount;
 
         bool hasIndexBuffer = false;
-        VkBuffer indexBuffer;
-        VkDeviceMemory indexBufferMemory;
+        std::unique_ptr<LveBuffer> indexBuffer;
         uint32_t indexCount;
     };
-
 }
