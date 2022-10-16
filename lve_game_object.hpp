@@ -2,10 +2,12 @@
 
 #include "lve_model.hpp"
 
-#include <memory>
-
 // libs
 #include <glm/gtc/matrix_transform.hpp>
+
+// std
+#include <memory>
+#include <unordered_map>
 
 namespace lve
 {
@@ -28,6 +30,7 @@ namespace lve
     {
     public:
         using id_t = unsigned int;
+        using Map = std::unordered_map<id_t, LveGameObject>;
 
         static LveGameObject createGameObject()
         {
@@ -40,7 +43,7 @@ namespace lve
         LveGameObject(LveGameObject &&) = default;
         LveGameObject &operator=(LveGameObject &&) = default;
 
-        id_t getId() const { return id; }
+        id_t getId() { return id; }
 
         std::shared_ptr<LveModel> model{};
         glm::vec3 color{};
