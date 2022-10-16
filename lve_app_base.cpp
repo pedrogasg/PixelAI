@@ -1,36 +1,38 @@
 #include "lve_app_base.hpp"
+
 #include "keyboard_movement_controller.hpp"
 #include "lve_buffer.hpp"
-#include "simple_render_system.hpp"
 #include "lve_camera.hpp"
+#include "simple_render_system.hpp"
 
+// libs
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
 #include <glm/glm.hpp>
 #include <glm/gtc/constants.hpp>
 
-#include <stdexcept>
+// std
 #include <array>
-#include <memory>
+#include <cassert>
 #include <chrono>
+#include <stdexcept>
 
 namespace lve
 {
+
     struct GlobalUbo
     {
         glm::mat4 projectionView{1.f};
         glm::vec3 lightDirection = glm::normalize(glm::vec3{1.f, -3.f, -1.f});
     };
 
-    struct SimplePushConstantData
-    {
-        glm::mat2 transform{1.f};
-        glm::vec2 offset;
-        alignas(16) glm::vec3 color;
-    };
-
     LveAppBase::LveAppBase()
     {
+        globalPool =
+            LveDescriptorPool::Builder(lveDevice)
+                .setMaxSets(LveSwapChain::MAX_FRAMES_IN_FLIGHT)
+                .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, LveSwapChain::MAX_FRAMES_IN_FLIGHT)
+                .build();
         loadGameObjects();
     }
 
@@ -49,7 +51,25 @@ namespace lve
                 VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
             uboBuffers[i]->map();
         }
-        SimpleRenderSystem simpleRenderSystem{lveDevice, lveRenderer.getSwapChainRenderPass()};
+
+        auto globalSetLayout =
+            LveDescriptorSetLayout::Builder(lveDevice)
+                .addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT)
+                .build();
+
+        std::vector<VkDescriptorSet> globalDescriptorSets(LveSwapChain::MAX_FRAMES_IN_FLIGHT);
+        for (int i = 0; i < globalDescriptorSets.size(); i++)
+        {
+            auto bufferInfo = uboBuffers[i]->descriptorInfo();
+            LveDescriptorWriter(*globalSetLayout, *globalPool)
+                .writeBuffer(0, &bufferInfo)
+                .build(globalDescriptorSets[i]);
+        }
+
+        SimpleRenderSystem simpleRenderSystem{
+            lveDevice,
+            lveRenderer.getSwapChainRenderPass(),
+            globalSetLayout->getDescriptorSetLayout()};
         LveCamera camera{};
 
         auto viewerObject = LveGameObject::createGameObject();
@@ -74,7 +94,12 @@ namespace lve
             if (auto commandBuffer = lveRenderer.beginFrame())
             {
                 int frameIndex = lveRenderer.getFrameIndex();
-                FrameInfo frameInfo{frameIndex, frameTime, commandBuffer, camera};
+                FrameInfo frameInfo{
+                    frameIndex,
+                    frameTime,
+                    commandBuffer,
+                    camera,
+                    globalDescriptorSets[frameIndex]};
 
                 // update
                 GlobalUbo ubo{};
@@ -85,7 +110,6 @@ namespace lve
                 // render
                 lveRenderer.beginSwapChainRenderPass(commandBuffer);
                 simpleRenderSystem.renderGameObjects(frameInfo, gameObjects);
-
                 lveRenderer.endSwapChainRenderPass(commandBuffer);
                 lveRenderer.endFrame();
             }
@@ -111,4 +135,5 @@ namespace lve
         smoothVase.transform.scale = {3.f, 1.5f, 3.f};
         gameObjects.push_back(std::move(smoothVase));
     }
-}
+
+} // namespace lve
