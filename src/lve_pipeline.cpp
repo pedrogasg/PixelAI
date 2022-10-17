@@ -7,6 +7,11 @@
 #include <stdexcept>
 #include <vector>
 
+#ifndef ENGINE_DIR
+#define ENGINE_DIR "../"
+#endif
+
+
 namespace lve
 {
 
@@ -26,13 +31,14 @@ namespace lve
         vkDestroyPipeline(lveDevice.device(), graphicsPipeline, nullptr);
     }
 
-    std::vector<char> LvePipeline::readFile(const std::string &filename)
+    std::vector<char> LvePipeline::readFile(const std::string &filepath)
     {
-        std::ifstream file{filename, std::ios::ate | std::ios::binary};
+        std::string enginePath = ENGINE_DIR + filepath;
+        std::ifstream file{enginePath, std::ios::ate | std::ios::binary};
 
         if (!file.is_open())
         {
-            throw std::runtime_error("failed to open file: " + filename);
+            throw std::runtime_error("failed to open file: " + enginePath);
         }
 
         size_t fileSize = (size_t)file.tellg();
