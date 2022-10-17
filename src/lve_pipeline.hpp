@@ -10,6 +10,8 @@ namespace lve
 
     struct PipelineConfigInfo
     {
+        std::vector<VkVertexInputBindingDescription> bindingDescriptions{};
+        std::vector<VkVertexInputAttributeDescription> attributeDescriptions{};
         VkPipelineViewportStateCreateInfo viewportInfo;
         VkPipelineInputAssemblyStateCreateInfo inputAssemblyInfo;
         VkPipelineRasterizationStateCreateInfo rasterizationInfo;
@@ -45,7 +47,7 @@ namespace lve
 
         void bind(VkCommandBuffer commandBuffer);
 
-        static void defaultPipelineConfigInfo(PipelineConfigInfo& configInfo);
+        static void defaultPipelineConfigInfo(PipelineConfigInfo &configInfo);
     };
 
 }
