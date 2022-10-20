@@ -1,4 +1,4 @@
-#include "lve_swap_chain.hpp"
+#include "pai_swap_chain.hpp"
 
 // std
 #include <memory.h>
@@ -10,24 +10,24 @@
 #include <set>
 #include <stdexcept>
 
-namespace lve
+namespace pai
 {
 
-    LveSwapChain::LveSwapChain(LveDevice &deviceRef, VkExtent2D extent)
+    PaiSwapChain::PaiSwapChain(PaiDevice &deviceRef, VkExtent2D extent)
         : device{deviceRef}, windowExtent{extent}
     {
         init();
     }
 
-    LveSwapChain::LveSwapChain(
-        LveDevice &deviceRef, VkExtent2D extent, std::shared_ptr<LveSwapChain> previous)
+    PaiSwapChain::PaiSwapChain(
+        PaiDevice &deviceRef, VkExtent2D extent, std::shared_ptr<PaiSwapChain> previous)
         : device{deviceRef}, windowExtent{extent}, oldSwapChain{previous}
     {
         init();
         oldSwapChain = nullptr;
     }
 
-    void LveSwapChain::init()
+    void PaiSwapChain::init()
     {
         createSwapChain();
         createImageViews();
@@ -37,7 +37,7 @@ namespace lve
         createSyncObjects();
     }
 
-    LveSwapChain::~LveSwapChain()
+    PaiSwapChain::~PaiSwapChain()
     {
         for (auto imageView : swapChainImageViews)
         {
@@ -74,7 +74,7 @@ namespace lve
         }
     }
 
-    VkResult LveSwapChain::acquireNextImage(uint32_t *imageIndex)
+    VkResult PaiSwapChain::acquireNextImage(uint32_t *imageIndex)
     {
         vkWaitForFences(
             device.device(),
@@ -94,7 +94,7 @@ namespace lve
         return result;
     }
 
-    VkResult LveSwapChain::submitCommandBuffers(const VkCommandBuffer *buffers, uint32_t *imageIndex)
+    VkResult PaiSwapChain::submitCommandBuffers(const VkCommandBuffer *buffers, uint32_t *imageIndex)
     {
         if (imagesInFlight[*imageIndex] != VK_NULL_HANDLE)
         {
@@ -144,7 +144,7 @@ namespace lve
         return result;
     }
 
-    void LveSwapChain::createSwapChain()
+    void PaiSwapChain::createSwapChain()
     {
         SwapChainSupportDetails swapChainSupport = device.getSwapChainSupport();
 
@@ -213,7 +213,7 @@ namespace lve
         swapChainExtent = extent;
     }
 
-    void LveSwapChain::createImageViews()
+    void PaiSwapChain::createImageViews()
     {
         swapChainImageViews.resize(swapChainImages.size());
         for (size_t i = 0; i < swapChainImages.size(); i++)
@@ -237,7 +237,7 @@ namespace lve
         }
     }
 
-    void LveSwapChain::createRenderPass()
+    void PaiSwapChain::createRenderPass()
     {
         VkAttachmentDescription depthAttachment{};
         depthAttachment.format = findDepthFormat();
@@ -302,7 +302,7 @@ namespace lve
         }
     }
 
-    void LveSwapChain::createFramebuffers()
+    void PaiSwapChain::createFramebuffers()
     {
         swapChainFramebuffers.resize(imageCount());
         for (size_t i = 0; i < imageCount(); i++)
@@ -330,7 +330,7 @@ namespace lve
         }
     }
 
-    void LveSwapChain::createDepthResources()
+    void PaiSwapChain::createDepthResources()
     {
         VkFormat depthFormat = findDepthFormat();
         swapChainDepthFormat = depthFormat;
@@ -382,7 +382,7 @@ namespace lve
         }
     }
 
-    void LveSwapChain::createSyncObjects()
+    void PaiSwapChain::createSyncObjects()
     {
         imageAvailableSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
         renderFinishedSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
@@ -409,7 +409,7 @@ namespace lve
         }
     }
 
-    VkSurfaceFormatKHR LveSwapChain::chooseSwapSurfaceFormat(
+    VkSurfaceFormatKHR PaiSwapChain::chooseSwapSurfaceFormat(
         const std::vector<VkSurfaceFormatKHR> &availableFormats)
     {
         for (const auto &availableFormat : availableFormats)
@@ -424,7 +424,7 @@ namespace lve
         return availableFormats[0];
     }
 
-    VkPresentModeKHR LveSwapChain::chooseSwapPresentMode(
+    VkPresentModeKHR PaiSwapChain::chooseSwapPresentMode(
         const std::vector<VkPresentModeKHR> &availablePresentModes)
     {
         for (const auto &availablePresentMode : availablePresentModes)
@@ -447,7 +447,7 @@ namespace lve
         return VK_PRESENT_MODE_FIFO_KHR;
     }
 
-    VkExtent2D LveSwapChain::chooseSwapExtent(const VkSurfaceCapabilitiesKHR &capabilities)
+    VkExtent2D PaiSwapChain::chooseSwapExtent(const VkSurfaceCapabilitiesKHR &capabilities)
     {
         if (capabilities.currentExtent.width != std::numeric_limits<uint32_t>::max())
         {
@@ -467,7 +467,7 @@ namespace lve
         }
     }
 
-    VkFormat LveSwapChain::findDepthFormat()
+    VkFormat PaiSwapChain::findDepthFormat()
     {
         return device.findSupportedFormat(
             {VK_FORMAT_D32_SFLOAT, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_UNORM_S8_UINT},

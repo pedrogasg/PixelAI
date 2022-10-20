@@ -1,22 +1,22 @@
 #pragma once
 
-#include "../lve_camera.hpp"
-#include "../lve_device.hpp"
-#include "../lve_frame_info.hpp"
-#include "../lve_game_object.hpp"
-#include "../lve_pipeline.hpp"
+#include "../pai_camera.hpp"
+#include "../pai_device.hpp"
+#include "../pai_frame_info.hpp"
+#include "../pai_game_object.hpp"
+#include "../pai_pipeline.hpp"
 
 // std
 #include <memory>
 #include <vector>
 
-namespace lve
+namespace pai
 {
     class UnitSystem
     {
     public:
         UnitSystem(
-            LveDevice &device, VkRenderPass renderPass, VkDescriptorSetLayout globalSetLayout);
+            PaiDevice &device, VkRenderPass renderPass, VkDescriptorSetLayout globalSetLayout);
         ~UnitSystem();
 
         UnitSystem(const UnitSystem &) = delete;
@@ -29,9 +29,9 @@ namespace lve
         void createPipelineLayout(VkDescriptorSetLayout globalSetLayout);
         void createPipeline(VkRenderPass renderPass);
 
-        LveDevice &lveDevice;
+        PaiDevice &paiDevice;
 
-        std::unique_ptr<LvePipeline> lvePipeline;
+        std::unique_ptr<PaiPipeline> paiPipeline;
         VkPipelineLayout pipelineLayout;
     };
 }

@@ -1,27 +1,27 @@
 #pragma once
 
-#include "lve_device.hpp"
-#include "lve_swap_chain.hpp"
-#include "lve_window.hpp"
+#include "pai_device.hpp"
+#include "pai_swap_chain.hpp"
+#include "pai_window.hpp"
 
 // std
 #include <cassert>
 #include <memory>
 #include <vector>
 
-namespace lve
+namespace pai
 {
-    class LveRenderer
+    class PaiRenderer
     {
     public:
-        LveRenderer(LveWindow &window, LveDevice &device);
-        ~LveRenderer();
+        PaiRenderer(PaiWindow &window, PaiDevice &device);
+        ~PaiRenderer();
 
-        LveRenderer(const LveRenderer &) = delete;
-        LveRenderer &operator=(const LveRenderer &) = delete;
+        PaiRenderer(const PaiRenderer &) = delete;
+        PaiRenderer &operator=(const PaiRenderer &) = delete;
 
-        VkRenderPass getSwapChainRenderPass() const { return lveSwapChain->getRenderPass(); }
-        float getAspectRatio() const { return lveSwapChain->extentAspectRatio(); }
+        VkRenderPass getSwapChainRenderPass() const { return paiSwapChain->getRenderPass(); }
+        float getAspectRatio() const { return paiSwapChain->extentAspectRatio(); }
         bool isFrameInProgress() const { return isFrameStarted; }
 
         VkCommandBuffer getCurrentCommandBuffer() const
@@ -46,9 +46,9 @@ namespace lve
         void freeCommandBuffers();
         void recreateSwapChain();
 
-        LveWindow &lveWindow;
-        LveDevice &lveDevice;
-        std::unique_ptr<LveSwapChain> lveSwapChain;
+        PaiWindow &paiWindow;
+        PaiDevice &paiDevice;
+        std::unique_ptr<PaiSwapChain> paiSwapChain;
         std::vector<VkCommandBuffer> commandBuffers;
 
         uint32_t currentImageIndex{0};

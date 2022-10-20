@@ -1,4 +1,4 @@
-#include "lve_app_base.hpp"
+#include "pai_app_base.hpp"
 
 #include <cstdlib>
 #include <iostream>
@@ -7,7 +7,7 @@
 int main()
 {
 
-  lve::LveAppBase app{};
+  pai::PaiAppBase app{};
 
   try
   {

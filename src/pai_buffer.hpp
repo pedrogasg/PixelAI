@@ -1,24 +1,24 @@
 #pragma once
 
-#include "lve_device.hpp"
+#include "pai_device.hpp"
 
-namespace lve
+namespace pai
 {
 
-    class LveBuffer
+    class PaiBuffer
     {
     public:
-        LveBuffer(
-            LveDevice &device,
+        PaiBuffer(
+            PaiDevice &device,
             VkDeviceSize instanceSize,
             uint32_t instanceCount,
             VkBufferUsageFlags usageFlags,
             VkMemoryPropertyFlags memoryPropertyFlags,
             VkDeviceSize minOffsetAlignment = 1);
-        ~LveBuffer();
+        ~PaiBuffer();
 
-        LveBuffer(const LveBuffer &) = delete;
-        LveBuffer &operator=(const LveBuffer &) = delete;
+        PaiBuffer(const PaiBuffer &) = delete;
+        PaiBuffer &operator=(const PaiBuffer &) = delete;
 
         VkResult map(VkDeviceSize size = VK_WHOLE_SIZE, VkDeviceSize offset = 0);
         void unmap();
@@ -45,7 +45,7 @@ namespace lve
     private:
         static VkDeviceSize getAlignment(VkDeviceSize instanceSize, VkDeviceSize minOffsetAlignment);
 
-        LveDevice &lveDevice;
+        PaiDevice &paiDevice;
         void *mapped = nullptr;
         VkBuffer buffer = VK_NULL_HANDLE;
         VkDeviceMemory memory = VK_NULL_HANDLE;

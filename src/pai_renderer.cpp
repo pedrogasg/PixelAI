@@ -1,80 +1,80 @@
-#include "lve_renderer.hpp"
+#include "pai_renderer.hpp"
 
 // std
 #include <array>
 #include <cassert>
 #include <stdexcept>
 
-namespace lve
+namespace pai
 {
 
-    LveRenderer::LveRenderer(LveWindow &window, LveDevice &device)
-        : lveWindow{window}, lveDevice{device}
+    PaiRenderer::PaiRenderer(PaiWindow &window, PaiDevice &device)
+        : paiWindow{window}, paiDevice{device}
     {
         recreateSwapChain();
         createCommandBuffers();
     }
 
-    LveRenderer::~LveRenderer() { freeCommandBuffers(); }
+    PaiRenderer::~PaiRenderer() { freeCommandBuffers(); }
 
-    void LveRenderer::recreateSwapChain()
+    void PaiRenderer::recreateSwapChain()
     {
-        auto extent = lveWindow.getExtent();
+        auto extent = paiWindow.getExtent();
         while (extent.width == 0 || extent.height == 0)
         {
-            extent = lveWindow.getExtent();
+            extent = paiWindow.getExtent();
             glfwWaitEvents();
         }
-        vkDeviceWaitIdle(lveDevice.device());
+        vkDeviceWaitIdle(paiDevice.device());
 
-        if (lveSwapChain == nullptr)
+        if (paiSwapChain == nullptr)
         {
-            lveSwapChain = std::make_unique<LveSwapChain>(lveDevice, extent);
+            paiSwapChain = std::make_unique<PaiSwapChain>(paiDevice, extent);
         }
         else
         {
-            std::shared_ptr<LveSwapChain> oldSwapChain = std::move(lveSwapChain);
-            lveSwapChain = std::make_unique<LveSwapChain>(lveDevice, extent, oldSwapChain);
+            std::shared_ptr<PaiSwapChain> oldSwapChain = std::move(paiSwapChain);
+            paiSwapChain = std::make_unique<PaiSwapChain>(paiDevice, extent, oldSwapChain);
 
-            if (!oldSwapChain->compareSwapFormats(*lveSwapChain.get()))
+            if (!oldSwapChain->compareSwapFormats(*paiSwapChain.get()))
             {
                 throw std::runtime_error("Swap chain image(or depth) format has changed!");
             }
         }
     }
 
-    void LveRenderer::createCommandBuffers()
+    void PaiRenderer::createCommandBuffers()
     {
-        commandBuffers.resize(LveSwapChain::MAX_FRAMES_IN_FLIGHT);
+        commandBuffers.resize(PaiSwapChain::MAX_FRAMES_IN_FLIGHT);
 
         VkCommandBufferAllocateInfo allocInfo{};
         allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
         allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-        allocInfo.commandPool = lveDevice.getCommandPool();
+        allocInfo.commandPool = paiDevice.getCommandPool();
         allocInfo.commandBufferCount = static_cast<uint32_t>(commandBuffers.size());
 
-        if (vkAllocateCommandBuffers(lveDevice.device(), &allocInfo, commandBuffers.data()) !=
+        if (vkAllocateCommandBuffers(paiDevice.device(), &allocInfo, commandBuffers.data()) !=
             VK_SUCCESS)
         {
             throw std::runtime_error("failed to allocate command buffers!");
         }
     }
 
-    void LveRenderer::freeCommandBuffers()
+    void PaiRenderer::freeCommandBuffers()
     {
         vkFreeCommandBuffers(
-            lveDevice.device(),
-            lveDevice.getCommandPool(),
+            paiDevice.device(),
+            paiDevice.getCommandPool(),
             static_cast<uint32_t>(commandBuffers.size()),
             commandBuffers.data());
         commandBuffers.clear();
     }
 
-    VkCommandBuffer LveRenderer::beginFrame()
+    VkCommandBuffer PaiRenderer::beginFrame()
     {
         assert(!isFrameStarted && "Can't call beginFrame while already in progress");
 
-        auto result = lveSwapChain->acquireNextImage(&currentImageIndex);
+        auto result = paiSwapChain->acquireNextImage(&currentImageIndex);
         if (result == VK_ERROR_OUT_OF_DATE_KHR)
         {
             recreateSwapChain();
@@ -99,7 +99,7 @@ namespace lve
         return commandBuffer;
     }
 
-    void LveRenderer::endFrame()
+    void PaiRenderer::endFrame()
     {
         assert(isFrameStarted && "Can't call endFrame while frame is not in progress");
         auto commandBuffer = getCurrentCommandBuffer();
@@ -108,11 +108,11 @@ namespace lve
             throw std::runtime_error("failed to record command buffer!");
         }
 
-        auto result = lveSwapChain->submitCommandBuffers(&commandBuffer, &currentImageIndex);
+        auto result = paiSwapChain->submitCommandBuffers(&commandBuffer, &currentImageIndex);
         if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR ||
-            lveWindow.wasWindowResized())
+            paiWindow.wasWindowResized())
         {
-            lveWindow.resetWindowResizedFlag();
+            paiWindow.resetWindowResizedFlag();
             recreateSwapChain();
         }
         else if (result != VK_SUCCESS)
@@ -121,10 +121,10 @@ namespace lve
         }
 
         isFrameStarted = false;
-        currentFrameIndex = (currentFrameIndex + 1) % LveSwapChain::MAX_FRAMES_IN_FLIGHT;
+        currentFrameIndex = (currentFrameIndex + 1) % PaiSwapChain::MAX_FRAMES_IN_FLIGHT;
     }
 
-    void LveRenderer::beginSwapChainRenderPass(VkCommandBuffer commandBuffer)
+    void PaiRenderer::beginSwapChainRenderPass(VkCommandBuffer commandBuffer)
     {
         assert(isFrameStarted && "Can't call beginSwapChainRenderPass if frame is not in progress");
         assert(
@@ -133,11 +133,11 @@ namespace lve
 
         VkRenderPassBeginInfo renderPassInfo{};
         renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-        renderPassInfo.renderPass = lveSwapChain->getRenderPass();
-        renderPassInfo.framebuffer = lveSwapChain->getFrameBuffer(currentImageIndex);
+        renderPassInfo.renderPass = paiSwapChain->getRenderPass();
+        renderPassInfo.framebuffer = paiSwapChain->getFrameBuffer(currentImageIndex);
 
         renderPassInfo.renderArea.offset = {0, 0};
-        renderPassInfo.renderArea.extent = lveSwapChain->getSwapChainExtent();
+        renderPassInfo.renderArea.extent = paiSwapChain->getSwapChainExtent();
 
         std::array<VkClearValue, 2> clearValues{};
         clearValues[0].color = {0.01f, 0.01f, 0.01f, 1.0f};
@@ -150,16 +150,16 @@ namespace lve
         VkViewport viewport{};
         viewport.x = 0.0f;
         viewport.y = 0.0f;
-        viewport.width = static_cast<float>(lveSwapChain->getSwapChainExtent().width);
-        viewport.height = static_cast<float>(lveSwapChain->getSwapChainExtent().height);
+        viewport.width = static_cast<float>(paiSwapChain->getSwapChainExtent().width);
+        viewport.height = static_cast<float>(paiSwapChain->getSwapChainExtent().height);
         viewport.minDepth = 0.0f;
         viewport.maxDepth = 1.0f;
-        VkRect2D scissor{{0, 0}, lveSwapChain->getSwapChainExtent()};
+        VkRect2D scissor{{0, 0}, paiSwapChain->getSwapChainExtent()};
         vkCmdSetViewport(commandBuffer, 0, 1, &viewport);
         vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
     }
 
-    void LveRenderer::endSwapChainRenderPass(VkCommandBuffer commandBuffer)
+    void PaiRenderer::endSwapChainRenderPass(VkCommandBuffer commandBuffer)
     {
         assert(isFrameStarted && "Can't call endSwapChainRenderPass if frame is not in progress");
         assert(

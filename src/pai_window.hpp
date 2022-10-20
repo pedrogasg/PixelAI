@@ -5,9 +5,9 @@
 
 #include <string>
 
-namespace lve
+namespace pai
 {
-    class LveWindow
+    class PaiWindow
     {
     private:
         int width;
@@ -20,11 +20,11 @@ namespace lve
         void initWindow();
 
     public:
-        LveWindow(int w, int h, std::string name);
-        ~LveWindow();
+        PaiWindow(int w, int h, std::string name);
+        ~PaiWindow();
 
-        LveWindow(const LveWindow &) = delete;
-        LveWindow &operator=(const LveWindow &) = delete;
+        PaiWindow(const PaiWindow &) = delete;
+        PaiWindow &operator=(const PaiWindow &) = delete;
 
         bool shouldClose() { return glfwWindowShouldClose(window); }
         void createWindowSurface(VkInstance instance, VkSurfaceKHR *surface);

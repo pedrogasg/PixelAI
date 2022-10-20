@@ -1,11 +1,11 @@
 #pragma once
 
-#include "lve_device.hpp"
+#include "pai_device.hpp"
 
 #include <string>
 #include <vector>
 
-namespace lve
+namespace pai
 {
 
     struct PipelineConfigInfo
@@ -30,10 +30,10 @@ namespace lve
         uint32_t subpass = 0;
     };
 
-    class LvePipeline
+    class PaiPipeline
     {
     private:
-        LveDevice &lveDevice;
+        PaiDevice &paiDevice;
         VkPipeline graphicsPipeline;
         VkShaderModule vertShaderModule;
         VkShaderModule fragShaderModule;
@@ -43,11 +43,11 @@ namespace lve
         void createShaderModule(const std::vector<char> &code, VkShaderModule *shaderModule);
 
     public:
-        LvePipeline(LveDevice &device, const std::string &vertFilepath, const std::string &fragFilepath, const PipelineConfigInfo &configInfo);
-        ~LvePipeline();
+        PaiPipeline(PaiDevice &device, const std::string &vertFilepath, const std::string &fragFilepath, const PipelineConfigInfo &configInfo);
+        ~PaiPipeline();
 
-        LvePipeline(const LvePipeline &) = delete;
-        LvePipeline &operator=(const LvePipeline &) = delete;
+        PaiPipeline(const PaiPipeline &) = delete;
+        PaiPipeline &operator=(const PaiPipeline &) = delete;
 
         void bind(VkCommandBuffer commandBuffer);
 

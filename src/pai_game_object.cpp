@@ -1,6 +1,6 @@
-#include "lve_game_object.hpp"
+#include "pai_game_object.hpp"
 
-namespace lve
+namespace pai
 {
 
     glm::mat4 TransformComponent::mat4()
@@ -62,9 +62,9 @@ namespace lve
         };
     }
 
-    LveGameObject LveGameObject::makePointLight(float intensity, float radius, glm::vec3 color)
+    PaiGameObject PaiGameObject::makePointLight(float intensity, float radius, glm::vec3 color)
     {
-        LveGameObject gameObj = LveGameObject::createGameObject();
+        PaiGameObject gameObj = PaiGameObject::createGameObject();
         gameObj.color = color;
         gameObj.transform.scale.x = radius;
         gameObj.pointLight = std::make_unique<PointLightComponent>();

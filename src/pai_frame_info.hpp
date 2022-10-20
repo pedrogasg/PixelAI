@@ -1,12 +1,12 @@
 #pragma once
 
-#include "lve_camera.hpp"
-#include "lve_game_object.hpp"
+#include "pai_camera.hpp"
+#include "pai_game_object.hpp"
 
 // lib
 #include <vulkan/vulkan.h>
 
-namespace lve
+namespace pai
 {
 
 #define MAX_LIGHTS 100
@@ -32,8 +32,8 @@ namespace lve
         int frameIndex;
         float frameTime;
         VkCommandBuffer commandBuffer;
-        LveCamera &camera;
+        PaiCamera &camera;
         VkDescriptorSet globalDescriptorSet;
-        LveGameObject::Map &gameObjects;
+        PaiGameObject::Map &gameObjects;
     };
-} // namespace lve
+} // namespace pai

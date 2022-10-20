@@ -3,11 +3,11 @@
 // std
 #include <limits>
 
-namespace lve
+namespace pai
 {
 
     void KeyboardMovementController::moveInPlaneXZ(
-        GLFWwindow *window, float dt, LveGameObject &gameObject)
+        GLFWwindow *window, float dt, PaiGameObject &gameObject)
     {
         glm::vec3 rotate{0};
         if (glfwGetKey(window, keys.lookRight) == GLFW_PRESS)

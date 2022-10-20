@@ -1,11 +1,11 @@
 #pragma once
 
-#include "lve_window.hpp"
+#include "pai_window.hpp"
 
 #include <string>
 #include <vector>
 
-namespace lve
+namespace pai
 {
 
     struct SwapChainSupportDetails
@@ -24,7 +24,7 @@ namespace lve
         bool isComplete() { return graphicsFamilyHasValue && presentFamilyHasValue; }
     };
 
-    class LveDevice
+    class PaiDevice
     {
 
     private:
@@ -48,7 +48,7 @@ namespace lve
         VkInstance instance;
         VkDebugUtilsMessengerEXT debugMessenger;
         VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
-        LveWindow &window;
+        PaiWindow &window;
         VkCommandPool commandPool;
 
         VkDevice device_;
@@ -66,14 +66,14 @@ namespace lve
         const bool enableValidationLayers = true;
 #endif
 
-        LveDevice(LveWindow &window);
-        ~LveDevice();
+        PaiDevice(PaiWindow &window);
+        ~PaiDevice();
 
         // Not copyable or movable
-        LveDevice(const LveDevice &) = delete;
-        LveDevice& operator=(const LveDevice &) = delete;
-        LveDevice(LveDevice &&) = delete;
-        LveDevice &operator=(LveDevice &&) = delete;
+        PaiDevice(const PaiDevice &) = delete;
+        PaiDevice& operator=(const PaiDevice &) = delete;
+        PaiDevice(PaiDevice &&) = delete;
+        PaiDevice &operator=(PaiDevice &&) = delete;
 
         VkCommandPool getCommandPool() { return commandPool; }
         VkDevice device() { return device_; }

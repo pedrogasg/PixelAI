@@ -1,6 +1,6 @@
 #pragma once
 
-#include "lve_device.hpp"
+#include "pai_device.hpp"
 
 // vulkan headers
 #include <vulkan/vulkan.h>
@@ -10,10 +10,10 @@
 #include <string>
 #include <vector>
 
-namespace lve
+namespace pai
 {
 
-    class LveSwapChain
+    class PaiSwapChain
     {
 
     private:
@@ -45,11 +45,11 @@ namespace lve
         std::vector<VkImage> swapChainImages;
         std::vector<VkImageView> swapChainImageViews;
 
-        LveDevice &device;
+        PaiDevice &device;
         VkExtent2D windowExtent;
 
         VkSwapchainKHR swapChain;
-        std::shared_ptr<LveSwapChain> oldSwapChain;
+        std::shared_ptr<PaiSwapChain> oldSwapChain;
 
         std::vector<VkSemaphore> imageAvailableSemaphores;
         std::vector<VkSemaphore> renderFinishedSemaphores;
@@ -60,14 +60,14 @@ namespace lve
     public:
         static constexpr int MAX_FRAMES_IN_FLIGHT = 2;
 
-        LveSwapChain(LveDevice &deviceRef, VkExtent2D windowExtent);
-        LveSwapChain(
-            LveDevice &deviceRef, VkExtent2D windowExtent, std::shared_ptr<LveSwapChain> previous);
+        PaiSwapChain(PaiDevice &deviceRef, VkExtent2D windowExtent);
+        PaiSwapChain(
+            PaiDevice &deviceRef, VkExtent2D windowExtent, std::shared_ptr<PaiSwapChain> previous);
 
-        ~LveSwapChain();
+        ~PaiSwapChain();
 
-        LveSwapChain(const LveSwapChain &) = delete;
-        LveSwapChain &operator=(const LveSwapChain &) = delete;
+        PaiSwapChain(const PaiSwapChain &) = delete;
+        PaiSwapChain &operator=(const PaiSwapChain &) = delete;
 
         VkFramebuffer getFrameBuffer(int index) { return swapChainFramebuffers[index]; }
         VkRenderPass getRenderPass() { return renderPass; }
@@ -87,7 +87,7 @@ namespace lve
         VkResult acquireNextImage(uint32_t *imageIndex);
         VkResult submitCommandBuffers(const VkCommandBuffer *buffers, uint32_t *imageIndex);
 
-        bool compareSwapFormats(const LveSwapChain &swapChain) const
+        bool compareSwapFormats(const PaiSwapChain &swapChain) const
         {
             return swapChain.swapChainDepthFormat == swapChainDepthFormat &&
                    swapChain.swapChainImageFormat == swapChainImageFormat;

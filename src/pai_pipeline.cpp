@@ -1,5 +1,5 @@
-#include "lve_pipeline.hpp"
-#include "lve_model.hpp"
+#include "pai_pipeline.hpp"
+#include "pai_model.hpp"
 
 #include <cassert>
 #include <fstream>
@@ -11,26 +11,26 @@
 #define ENGINE_DIR "../"
 #endif
 
-namespace lve
+namespace pai
 {
 
-    LvePipeline::LvePipeline(
-        LveDevice &device,
+    PaiPipeline::PaiPipeline(
+        PaiDevice &device,
         const std::string &vertFilepath,
         const std::string &fragFilepath,
-        const PipelineConfigInfo &configInfo) : lveDevice{device}
+        const PipelineConfigInfo &configInfo) : paiDevice{device}
     {
         createGraphicsPipeline(vertFilepath, fragFilepath, configInfo);
     }
 
-    LvePipeline::~LvePipeline()
+    PaiPipeline::~PaiPipeline()
     {
-        vkDestroyShaderModule(lveDevice.device(), fragShaderModule, nullptr);
-        vkDestroyShaderModule(lveDevice.device(), vertShaderModule, nullptr);
-        vkDestroyPipeline(lveDevice.device(), graphicsPipeline, nullptr);
+        vkDestroyShaderModule(paiDevice.device(), fragShaderModule, nullptr);
+        vkDestroyShaderModule(paiDevice.device(), vertShaderModule, nullptr);
+        vkDestroyPipeline(paiDevice.device(), graphicsPipeline, nullptr);
     }
 
-    std::vector<char> LvePipeline::readFile(const std::string &filepath)
+    std::vector<char> PaiPipeline::readFile(const std::string &filepath)
     {
         std::string enginePath = ENGINE_DIR + filepath;
         std::ifstream file{enginePath, std::ios::ate | std::ios::binary};
@@ -51,7 +51,7 @@ namespace lve
         return buffer;
     }
 
-    void LvePipeline::createGraphicsPipeline(
+    void PaiPipeline::createGraphicsPipeline(
         const std::string &vertFilepath,
         const std::string &fragFilepath,
         const PipelineConfigInfo &configInfo)
@@ -116,7 +116,7 @@ namespace lve
         pipelineInfo.basePipelineIndex = -1;              // Optional
 
         if (vkCreateGraphicsPipelines(
-                lveDevice.device(),
+                paiDevice.device(),
                 VK_NULL_HANDLE,
                 1,
                 &pipelineInfo,
@@ -126,26 +126,26 @@ namespace lve
             throw std::runtime_error("failed to create graphics pipeline!");
         }
 
-        vkDestroyShaderModule(lveDevice.device(), fragShaderModule, nullptr);
-        vkDestroyShaderModule(lveDevice.device(), vertShaderModule, nullptr);
+        vkDestroyShaderModule(paiDevice.device(), fragShaderModule, nullptr);
+        vkDestroyShaderModule(paiDevice.device(), vertShaderModule, nullptr);
         fragShaderModule = VK_NULL_HANDLE;
         vertShaderModule = VK_NULL_HANDLE;
     }
 
-    void LvePipeline::createShaderModule(const std::vector<char> &code, VkShaderModule *shaderModule)
+    void PaiPipeline::createShaderModule(const std::vector<char> &code, VkShaderModule *shaderModule)
     {
         VkShaderModuleCreateInfo createInfo{};
         createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
         createInfo.codeSize = code.size();
         createInfo.pCode = reinterpret_cast<const uint32_t *>(code.data());
 
-        if (vkCreateShaderModule(lveDevice.device(), &createInfo, nullptr, shaderModule) != VK_SUCCESS)
+        if (vkCreateShaderModule(paiDevice.device(), &createInfo, nullptr, shaderModule) != VK_SUCCESS)
         {
             throw std::runtime_error("failed to create shader module");
         }
     }
 
-    void LvePipeline::defaultPipelineConfigInfo(PipelineConfigInfo &configInfo)
+    void PaiPipeline::defaultPipelineConfigInfo(PipelineConfigInfo &configInfo)
     {
 
         configInfo.inputAssemblyInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
@@ -217,16 +217,16 @@ namespace lve
             static_cast<uint32_t>(configInfo.dynamicStateEnables.size());
         configInfo.dynamicStateInfo.flags = 0;
 
-        configInfo.bindingDescriptions = LveModel::Vertex::getBindingDescriptions();
-        configInfo.attributeDescriptions = LveModel::Vertex::getAttributeDescriptions();
+        configInfo.bindingDescriptions = PaiModel::Vertex::getBindingDescriptions();
+        configInfo.attributeDescriptions = PaiModel::Vertex::getAttributeDescriptions();
     }
 
-    void LvePipeline::bind(VkCommandBuffer commandBuffer)
+    void PaiPipeline::bind(VkCommandBuffer commandBuffer)
     {
         vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline);
     }
 
-    void LvePipeline::enableAlphaBlending(PipelineConfigInfo &configInfo)
+    void PaiPipeline::enableAlphaBlending(PipelineConfigInfo &configInfo)
     {
         configInfo.colorBlendAttachment.blendEnable = VK_TRUE;
         configInfo.colorBlendAttachment.colorWriteMask =

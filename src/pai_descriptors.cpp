@@ -1,15 +1,15 @@
-#include "lve_descriptors.hpp"
+#include "pai_descriptors.hpp"
 
 // std
 #include <cassert>
 #include <stdexcept>
 
-namespace lve
+namespace pai
 {
 
     // *************** Descriptor Set Layout Builder *********************
 
-    LveDescriptorSetLayout::Builder &LveDescriptorSetLayout::Builder::addBinding(
+    PaiDescriptorSetLayout::Builder &PaiDescriptorSetLayout::Builder::addBinding(
         uint32_t binding,
         VkDescriptorType descriptorType,
         VkShaderStageFlags stageFlags,
@@ -25,16 +25,16 @@ namespace lve
         return *this;
     }
 
-    std::unique_ptr<LveDescriptorSetLayout> LveDescriptorSetLayout::Builder::build() const
+    std::unique_ptr<PaiDescriptorSetLayout> PaiDescriptorSetLayout::Builder::build() const
     {
-        return std::make_unique<LveDescriptorSetLayout>(lveDevice, bindings);
+        return std::make_unique<PaiDescriptorSetLayout>(paiDevice, bindings);
     }
 
     // *************** Descriptor Set Layout *********************
 
-    LveDescriptorSetLayout::LveDescriptorSetLayout(
-        LveDevice &lveDevice, std::unordered_map<uint32_t, VkDescriptorSetLayoutBinding> bindings)
-        : lveDevice{lveDevice}, bindings{bindings}
+    PaiDescriptorSetLayout::PaiDescriptorSetLayout(
+        PaiDevice &paiDevice, std::unordered_map<uint32_t, VkDescriptorSetLayoutBinding> bindings)
+        : paiDevice{paiDevice}, bindings{bindings}
     {
         std::vector<VkDescriptorSetLayoutBinding> setLayoutBindings{};
         for (auto kv : bindings)
@@ -48,7 +48,7 @@ namespace lve
         descriptorSetLayoutInfo.pBindings = setLayoutBindings.data();
 
         if (vkCreateDescriptorSetLayout(
-                lveDevice.device(),
+                paiDevice.device(),
                 &descriptorSetLayoutInfo,
                 nullptr,
                 &descriptorSetLayout) != VK_SUCCESS)
@@ -57,45 +57,45 @@ namespace lve
         }
     }
 
-    LveDescriptorSetLayout::~LveDescriptorSetLayout()
+    PaiDescriptorSetLayout::~PaiDescriptorSetLayout()
     {
-        vkDestroyDescriptorSetLayout(lveDevice.device(), descriptorSetLayout, nullptr);
+        vkDestroyDescriptorSetLayout(paiDevice.device(), descriptorSetLayout, nullptr);
     }
 
     // *************** Descriptor Pool Builder *********************
 
-    LveDescriptorPool::Builder &LveDescriptorPool::Builder::addPoolSize(
+    PaiDescriptorPool::Builder &PaiDescriptorPool::Builder::addPoolSize(
         VkDescriptorType descriptorType, uint32_t count)
     {
         poolSizes.push_back({descriptorType, count});
         return *this;
     }
 
-    LveDescriptorPool::Builder &LveDescriptorPool::Builder::setPoolFlags(
+    PaiDescriptorPool::Builder &PaiDescriptorPool::Builder::setPoolFlags(
         VkDescriptorPoolCreateFlags flags)
     {
         poolFlags = flags;
         return *this;
     }
-    LveDescriptorPool::Builder &LveDescriptorPool::Builder::setMaxSets(uint32_t count)
+    PaiDescriptorPool::Builder &PaiDescriptorPool::Builder::setMaxSets(uint32_t count)
     {
         maxSets = count;
         return *this;
     }
 
-    std::unique_ptr<LveDescriptorPool> LveDescriptorPool::Builder::build() const
+    std::unique_ptr<PaiDescriptorPool> PaiDescriptorPool::Builder::build() const
     {
-        return std::make_unique<LveDescriptorPool>(lveDevice, maxSets, poolFlags, poolSizes);
+        return std::make_unique<PaiDescriptorPool>(paiDevice, maxSets, poolFlags, poolSizes);
     }
 
     // *************** Descriptor Pool *********************
 
-    LveDescriptorPool::LveDescriptorPool(
-        LveDevice &lveDevice,
+    PaiDescriptorPool::PaiDescriptorPool(
+        PaiDevice &paiDevice,
         uint32_t maxSets,
         VkDescriptorPoolCreateFlags poolFlags,
         const std::vector<VkDescriptorPoolSize> &poolSizes)
-        : lveDevice{lveDevice}
+        : paiDevice{paiDevice}
     {
         VkDescriptorPoolCreateInfo descriptorPoolInfo{};
         descriptorPoolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
@@ -104,19 +104,19 @@ namespace lve
         descriptorPoolInfo.maxSets = maxSets;
         descriptorPoolInfo.flags = poolFlags;
 
-        if (vkCreateDescriptorPool(lveDevice.device(), &descriptorPoolInfo, nullptr, &descriptorPool) !=
+        if (vkCreateDescriptorPool(paiDevice.device(), &descriptorPoolInfo, nullptr, &descriptorPool) !=
             VK_SUCCESS)
         {
             throw std::runtime_error("failed to create descriptor pool!");
         }
     }
 
-    LveDescriptorPool::~LveDescriptorPool()
+    PaiDescriptorPool::~PaiDescriptorPool()
     {
-        vkDestroyDescriptorPool(lveDevice.device(), descriptorPool, nullptr);
+        vkDestroyDescriptorPool(paiDevice.device(), descriptorPool, nullptr);
     }
 
-    bool LveDescriptorPool::allocateDescriptor(
+    bool PaiDescriptorPool::allocateDescriptor(
         const VkDescriptorSetLayout descriptorSetLayout, VkDescriptorSet &descriptor) const
     {
         VkDescriptorSetAllocateInfo allocInfo{};
@@ -127,33 +127,33 @@ namespace lve
 
         // Might want to create a "DescriptorPoolManager" class that handles this case, and builds
         // a new pool whenever an old pool fills up. But this is beyond our current scope
-        if (vkAllocateDescriptorSets(lveDevice.device(), &allocInfo, &descriptor) != VK_SUCCESS)
+        if (vkAllocateDescriptorSets(paiDevice.device(), &allocInfo, &descriptor) != VK_SUCCESS)
         {
             return false;
         }
         return true;
     }
 
-    void LveDescriptorPool::freeDescriptors(std::vector<VkDescriptorSet> &descriptors) const
+    void PaiDescriptorPool::freeDescriptors(std::vector<VkDescriptorSet> &descriptors) const
     {
         vkFreeDescriptorSets(
-            lveDevice.device(),
+            paiDevice.device(),
             descriptorPool,
             static_cast<uint32_t>(descriptors.size()),
             descriptors.data());
     }
 
-    void LveDescriptorPool::resetPool()
+    void PaiDescriptorPool::resetPool()
     {
-        vkResetDescriptorPool(lveDevice.device(), descriptorPool, 0);
+        vkResetDescriptorPool(paiDevice.device(), descriptorPool, 0);
     }
 
     // *************** Descriptor Writer *********************
 
-    LveDescriptorWriter::LveDescriptorWriter(LveDescriptorSetLayout &setLayout, LveDescriptorPool &pool)
+    PaiDescriptorWriter::PaiDescriptorWriter(PaiDescriptorSetLayout &setLayout, PaiDescriptorPool &pool)
         : setLayout{setLayout}, pool{pool} {}
 
-    LveDescriptorWriter &LveDescriptorWriter::writeBuffer(
+    PaiDescriptorWriter &PaiDescriptorWriter::writeBuffer(
         uint32_t binding, VkDescriptorBufferInfo *bufferInfo)
     {
         assert(setLayout.bindings.count(binding) == 1 && "Layout does not contain specified binding");
@@ -175,7 +175,7 @@ namespace lve
         return *this;
     }
 
-    LveDescriptorWriter &LveDescriptorWriter::writeImage(
+    PaiDescriptorWriter &PaiDescriptorWriter::writeImage(
         uint32_t binding, VkDescriptorImageInfo *imageInfo)
     {
         assert(setLayout.bindings.count(binding) == 1 && "Layout does not contain specified binding");
@@ -197,7 +197,7 @@ namespace lve
         return *this;
     }
 
-    bool LveDescriptorWriter::build(VkDescriptorSet &set)
+    bool PaiDescriptorWriter::build(VkDescriptorSet &set)
     {
         bool success = pool.allocateDescriptor(setLayout.getDescriptorSetLayout(), set);
         if (!success)
@@ -208,13 +208,13 @@ namespace lve
         return true;
     }
 
-    void LveDescriptorWriter::overwrite(VkDescriptorSet &set)
+    void PaiDescriptorWriter::overwrite(VkDescriptorSet &set)
     {
         for (auto &write : writes)
         {
             write.dstSet = set;
         }
-        vkUpdateDescriptorSets(pool.lveDevice.device(), writes.size(), writes.data(), 0, nullptr);
+        vkUpdateDescriptorSets(pool.paiDevice.device(), writes.size(), writes.data(), 0, nullptr);
     }
 
 }

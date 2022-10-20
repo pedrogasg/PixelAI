@@ -1,7 +1,7 @@
 #pragma once
 
-#include "lve_buffer.hpp"
-#include "lve_device.hpp"
+#include "pai_buffer.hpp"
+#include "pai_device.hpp"
 
 // libs
 #define GLM_FORCE_RADIANS
@@ -12,9 +12,9 @@
 #include <memory>
 #include <vector>
 
-namespace lve
+namespace pai
 {
-    class LveModel
+    class PaiModel
     {
     public:
         struct Vertex
@@ -42,14 +42,14 @@ namespace lve
             void loadModel(const std::string &filepath);
         };
 
-        LveModel(LveDevice &device, const LveModel::Builder &builder);
-        ~LveModel();
+        PaiModel(PaiDevice &device, const PaiModel::Builder &builder);
+        ~PaiModel();
 
-        LveModel(const LveModel &) = delete;
-        LveModel &operator=(const LveModel &) = delete;
+        PaiModel(const PaiModel &) = delete;
+        PaiModel &operator=(const PaiModel &) = delete;
 
-        static std::unique_ptr<LveModel> createModelFromFile(
-            LveDevice &device, const std::string &filepath);
+        static std::unique_ptr<PaiModel> createModelFromFile(
+            PaiDevice &device, const std::string &filepath);
 
         void bind(VkCommandBuffer commandBuffer);
         void draw(VkCommandBuffer commandBuffer);
@@ -58,13 +58,13 @@ namespace lve
         void createVertexBuffers(const std::vector<Vertex> &vertices);
         void createIndexBuffers(const std::vector<uint32_t> &indices);
 
-        LveDevice &lveDevice;
+        PaiDevice &paiDevice;
 
-        std::unique_ptr<LveBuffer> vertexBuffer;
+        std::unique_ptr<PaiBuffer> vertexBuffer;
         uint32_t vertexCount;
 
         bool hasIndexBuffer = false;
-        std::unique_ptr<LveBuffer> indexBuffer;
+        std::unique_ptr<PaiBuffer> indexBuffer;
         uint32_t indexCount;
     };
 }

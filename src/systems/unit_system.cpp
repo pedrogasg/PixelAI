@@ -12,7 +12,7 @@
 #include <cassert>
 #include <stdexcept>
 
-namespace lve
+namespace pai
 {
     struct UnitPushConstants
     {
@@ -22,8 +22,8 @@ namespace lve
     };
 
     UnitSystem::UnitSystem(
-        LveDevice &device, VkRenderPass renderPass, VkDescriptorSetLayout globalSetLayout)
-        : lveDevice{device}
+        PaiDevice &device, VkRenderPass renderPass, VkDescriptorSetLayout globalSetLayout)
+        : paiDevice{device}
     {
         createPipelineLayout(globalSetLayout);
         createPipeline(renderPass);
@@ -31,7 +31,7 @@ namespace lve
 
     UnitSystem::~UnitSystem()
     {
-        vkDestroyPipelineLayout(lveDevice.device(), pipelineLayout, nullptr);
+        vkDestroyPipelineLayout(paiDevice.device(), pipelineLayout, nullptr);
     }
 
     void UnitSystem::createPipelineLayout(VkDescriptorSetLayout globalSetLayout)
@@ -49,7 +49,7 @@ namespace lve
         pipelineLayoutInfo.pSetLayouts = descriptorSetLayouts.data();
         pipelineLayoutInfo.pushConstantRangeCount = 1;
         pipelineLayoutInfo.pPushConstantRanges = &pushConstantRange;
-        if (vkCreatePipelineLayout(lveDevice.device(), &pipelineLayoutInfo, nullptr, &pipelineLayout) !=
+        if (vkCreatePipelineLayout(paiDevice.device(), &pipelineLayoutInfo, nullptr, &pipelineLayout) !=
             VK_SUCCESS)
         {
             throw std::runtime_error("failed to create pipeline layout!");
@@ -61,14 +61,14 @@ namespace lve
         assert(pipelineLayout != nullptr && "Cannot create pipeline before pipeline layout");
 
         PipelineConfigInfo pipelineConfig{};
-        LvePipeline::defaultPipelineConfigInfo(pipelineConfig);
-        LvePipeline::enableAlphaBlending(pipelineConfig);
+        PaiPipeline::defaultPipelineConfigInfo(pipelineConfig);
+        PaiPipeline::enableAlphaBlending(pipelineConfig);
         pipelineConfig.attributeDescriptions.clear();
         pipelineConfig.bindingDescriptions.clear();
         pipelineConfig.renderPass = renderPass;
         pipelineConfig.pipelineLayout = pipelineLayout;
-        lvePipeline = std::make_unique<LvePipeline>(
-            lveDevice,
+        paiPipeline = std::make_unique<PaiPipeline>(
+            paiDevice,
             "shaders/point_light.vert.spv",
             "shaders/point_light.frag.spv",
             pipelineConfig);
@@ -100,7 +100,7 @@ namespace lve
 
     void UnitSystem::render(FrameInfo &frameInfo)
     {
-        std::map<float, LveGameObject::id_t> sorted;
+        std::map<float, PaiGameObject::id_t> sorted;
         for (auto &kv : frameInfo.gameObjects)
         {
             auto &obj = kv.second;
@@ -113,7 +113,7 @@ namespace lve
             sorted[disSquared] = obj.getId();
         }
 
-        lvePipeline->bind(frameInfo.commandBuffer);
+        paiPipeline->bind(frameInfo.commandBuffer);
 
         vkCmdBindDescriptorSets(
             frameInfo.commandBuffer,

@@ -1,8 +1,8 @@
-#include "lve_app_base.hpp"
+#include "pai_app_base.hpp"
 
 #include "keyboard_movement_controller.hpp"
-#include "lve_buffer.hpp"
-#include "lve_camera.hpp"
+#include "pai_buffer.hpp"
+#include "pai_camera.hpp"
 #include "systems/unit_system.hpp"
 
 // libs
@@ -17,28 +17,28 @@
 #include <chrono>
 #include <stdexcept>
 
-namespace lve
+namespace pai
 {
 
-    LveAppBase::LveAppBase()
+    PaiAppBase::PaiAppBase()
     {
         globalPool =
-            LveDescriptorPool::Builder(lveDevice)
-                .setMaxSets(LveSwapChain::MAX_FRAMES_IN_FLIGHT)
-                .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, LveSwapChain::MAX_FRAMES_IN_FLIGHT)
+            PaiDescriptorPool::Builder(paiDevice)
+                .setMaxSets(PaiSwapChain::MAX_FRAMES_IN_FLIGHT)
+                .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, PaiSwapChain::MAX_FRAMES_IN_FLIGHT)
                 .build();
         loadGameObjects();
     }
 
-    LveAppBase::~LveAppBase() {}
+    PaiAppBase::~PaiAppBase() {}
 
-    void LveAppBase::run()
+    void PaiAppBase::run()
     {
-        std::vector<std::unique_ptr<LveBuffer>> uboBuffers(LveSwapChain::MAX_FRAMES_IN_FLIGHT);
+        std::vector<std::unique_ptr<PaiBuffer>> uboBuffers(PaiSwapChain::MAX_FRAMES_IN_FLIGHT);
         for (int i = 0; i < uboBuffers.size(); i++)
         {
-            uboBuffers[i] = std::make_unique<LveBuffer>(
-                lveDevice,
+            uboBuffers[i] = std::make_unique<PaiBuffer>(
+                paiDevice,
                 sizeof(GlobalUbo),
                 1,
                 VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
@@ -47,32 +47,32 @@ namespace lve
         }
 
         auto globalSetLayout =
-            LveDescriptorSetLayout::Builder(lveDevice)
+            PaiDescriptorSetLayout::Builder(paiDevice)
                 .addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS)
                 .build();
 
-        std::vector<VkDescriptorSet> globalDescriptorSets(LveSwapChain::MAX_FRAMES_IN_FLIGHT);
+        std::vector<VkDescriptorSet> globalDescriptorSets(PaiSwapChain::MAX_FRAMES_IN_FLIGHT);
         for (int i = 0; i < globalDescriptorSets.size(); i++)
         {
             auto bufferInfo = uboBuffers[i]->descriptorInfo();
-            LveDescriptorWriter(*globalSetLayout, *globalPool)
+            PaiDescriptorWriter(*globalSetLayout, *globalPool)
                 .writeBuffer(0, &bufferInfo)
                 .build(globalDescriptorSets[i]);
         }
 
         UnitSystem unitSystem{
-            lveDevice,
-            lveRenderer.getSwapChainRenderPass(),
+            paiDevice,
+            paiRenderer.getSwapChainRenderPass(),
             globalSetLayout->getDescriptorSetLayout()};
 
-        LveCamera camera{};
+        PaiCamera camera{};
 
-        auto viewerObject = LveGameObject::createGameObject();
+        auto viewerObject = PaiGameObject::createGameObject();
         viewerObject.transform.translation.z = -2.5f;
         KeyboardMovementController cameraController{};
 
         auto currentTime = std::chrono::high_resolution_clock::now();
-        while (!lveWindow.shouldClose())
+        while (!paiWindow.shouldClose())
         {
             glfwPollEvents();
 
@@ -81,15 +81,15 @@ namespace lve
                 std::chrono::duration<float, std::chrono::seconds::period>(newTime - currentTime).count();
             currentTime = newTime;
 
-            cameraController.moveInPlaneXZ(lveWindow.getGLFWwindow(), frameTime, viewerObject);
+            cameraController.moveInPlaneXZ(paiWindow.getGLFWwindow(), frameTime, viewerObject);
             camera.setViewYXZ(viewerObject.transform.translation, viewerObject.transform.rotation);
 
-            float aspect = lveRenderer.getAspectRatio();
+            float aspect = paiRenderer.getAspectRatio();
             camera.setPerspectiveProjection(glm::radians(50.f), aspect, 0.1f, 100.f);
 
-            if (auto commandBuffer = lveRenderer.beginFrame())
+            if (auto commandBuffer = paiRenderer.beginFrame())
             {
-                int frameIndex = lveRenderer.getFrameIndex();
+                int frameIndex = paiRenderer.getFrameIndex();
                 FrameInfo frameInfo{
                     frameIndex,
                     frameTime,
@@ -108,19 +108,19 @@ namespace lve
                 uboBuffers[frameIndex]->flush();
 
                 // render
-                lveRenderer.beginSwapChainRenderPass(commandBuffer);
+                paiRenderer.beginSwapChainRenderPass(commandBuffer);
 
                 unitSystem.render(frameInfo);
 
-                lveRenderer.endSwapChainRenderPass(commandBuffer);
-                lveRenderer.endFrame();
+                paiRenderer.endSwapChainRenderPass(commandBuffer);
+                paiRenderer.endFrame();
             }
         }
 
-        vkDeviceWaitIdle(lveDevice.device());
+        vkDeviceWaitIdle(paiDevice.device());
     }
 
-    void LveAppBase::loadGameObjects()
+    void PaiAppBase::loadGameObjects()
     {
         std::vector<glm::vec3> lightColors{
             {1.f, .1f, .1f},
@@ -135,7 +135,7 @@ namespace lve
         {
             for (int j = 0; j < lightColors.size()*2; j++)
             {
-                auto pointLight = LveGameObject::makePointLight(0.4f);
+                auto pointLight = PaiGameObject::makePointLight(0.4f);
                 pointLight.color = lightColors[i];
                 //pointLight.transform.translation = glm::vec3(rotateLight * glm::vec4(-1.f, -1.f, -1.f, 1.f));
                 pointLight.transform.translation = {(j*.2f) - 1.4f, -i*.2f, 0.f};
@@ -144,4 +144,4 @@ namespace lve
         }
     }
 
-} // namespace lve
+} // namespace pai

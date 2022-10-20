@@ -1,9 +1,9 @@
 #pragma once
 
-#include "lve_game_object.hpp"
-#include "lve_window.hpp"
+#include "pai_game_object.hpp"
+#include "pai_window.hpp"
 
-namespace lve
+namespace pai
 {
     class KeyboardMovementController
     {
@@ -22,7 +22,7 @@ namespace lve
             int lookDown = GLFW_KEY_DOWN;
         };
 
-        void moveInPlaneXZ(GLFWwindow *window, float dt, LveGameObject &gameObject);
+        void moveInPlaneXZ(GLFWwindow *window, float dt, PaiGameObject &gameObject);
 
         KeyMappings keys{};
         float moveSpeed{3.f};

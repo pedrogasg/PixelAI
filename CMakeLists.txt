@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.11.0)
 
-set(NAME LveEngine)
+set(NAME PaiEngine)
 
 project(${NAME} VERSION 0.0.1)
 

@@ -1,6 +1,6 @@
-#include "lve_model.hpp"
+#include "pai_model.hpp"
 
-#include "lve_utils.hpp"
+#include "pai_utils.hpp"
 
 // libs
 #define TINYOBJLOADER_IMPLEMENTATION
@@ -19,45 +19,45 @@
 namespace std
 {
     template <>
-    struct hash<lve::LveModel::Vertex>
+    struct hash<pai::PaiModel::Vertex>
     {
-        size_t operator()(lve::LveModel::Vertex const &vertex) const
+        size_t operator()(pai::PaiModel::Vertex const &vertex) const
         {
             size_t seed = 0;
-            lve::hashCombine(seed, vertex.position, vertex.color, vertex.normal, vertex.uv);
+            pai::hashCombine(seed, vertex.position, vertex.color, vertex.normal, vertex.uv);
             return seed;
         }
     };
 } // namespace std
 
-namespace lve
+namespace pai
 {
 
-    LveModel::LveModel(LveDevice &device, const LveModel::Builder &builder) : lveDevice{device}
+    PaiModel::PaiModel(PaiDevice &device, const PaiModel::Builder &builder) : paiDevice{device}
     {
         createVertexBuffers(builder.vertices);
         createIndexBuffers(builder.indices);
     }
 
-    LveModel::~LveModel() {}
+    PaiModel::~PaiModel() {}
 
-    std::unique_ptr<LveModel> LveModel::createModelFromFile(
-        LveDevice &device, const std::string &filepath)
+    std::unique_ptr<PaiModel> PaiModel::createModelFromFile(
+        PaiDevice &device, const std::string &filepath)
     {
         Builder builder{};
         builder.loadModel(ENGINE_DIR + filepath);
-        return std::make_unique<LveModel>(device, builder);
+        return std::make_unique<PaiModel>(device, builder);
     }
 
-    void LveModel::createVertexBuffers(const std::vector<Vertex> &vertices)
+    void PaiModel::createVertexBuffers(const std::vector<Vertex> &vertices)
     {
         vertexCount = static_cast<uint32_t>(vertices.size());
         assert(vertexCount >= 3 && "Vertex count must be at least 3");
         VkDeviceSize bufferSize = sizeof(vertices[0]) * vertexCount;
         uint32_t vertexSize = sizeof(vertices[0]);
 
-        LveBuffer stagingBuffer{
-            lveDevice,
+        PaiBuffer stagingBuffer{
+            paiDevice,
             vertexSize,
             vertexCount,
             VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
@@ -67,17 +67,17 @@ namespace lve
         stagingBuffer.map();
         stagingBuffer.writeToBuffer((void *)vertices.data());
 
-        vertexBuffer = std::make_unique<LveBuffer>(
-            lveDevice,
+        vertexBuffer = std::make_unique<PaiBuffer>(
+            paiDevice,
             vertexSize,
             vertexCount,
             VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
             VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
 
-        lveDevice.copyBuffer(stagingBuffer.getBuffer(), vertexBuffer->getBuffer(), bufferSize);
+        paiDevice.copyBuffer(stagingBuffer.getBuffer(), vertexBuffer->getBuffer(), bufferSize);
     }
 
-    void LveModel::createIndexBuffers(const std::vector<uint32_t> &indices)
+    void PaiModel::createIndexBuffers(const std::vector<uint32_t> &indices)
     {
         indexCount = static_cast<uint32_t>(indices.size());
         hasIndexBuffer = indexCount > 0;
@@ -90,8 +90,8 @@ namespace lve
         VkDeviceSize bufferSize = sizeof(indices[0]) * indexCount;
         uint32_t indexSize = sizeof(indices[0]);
 
-        LveBuffer stagingBuffer{
-            lveDevice,
+        PaiBuffer stagingBuffer{
+            paiDevice,
             indexSize,
             indexCount,
             VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
@@ -101,17 +101,17 @@ namespace lve
         stagingBuffer.map();
         stagingBuffer.writeToBuffer((void *)indices.data());
 
-        indexBuffer = std::make_unique<LveBuffer>(
-            lveDevice,
+        indexBuffer = std::make_unique<PaiBuffer>(
+            paiDevice,
             indexSize,
             indexCount,
             VK_BUFFER_USAGE_INDEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
             VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
 
-        lveDevice.copyBuffer(stagingBuffer.getBuffer(), indexBuffer->getBuffer(), bufferSize);
+        paiDevice.copyBuffer(stagingBuffer.getBuffer(), indexBuffer->getBuffer(), bufferSize);
     }
 
-    void LveModel::draw(VkCommandBuffer commandBuffer)
+    void PaiModel::draw(VkCommandBuffer commandBuffer)
     {
         if (hasIndexBuffer)
         {
@@ -123,7 +123,7 @@ namespace lve
         }
     }
 
-    void LveModel::bind(VkCommandBuffer commandBuffer)
+    void PaiModel::bind(VkCommandBuffer commandBuffer)
     {
         VkBuffer buffers[] = {vertexBuffer->getBuffer()};
         VkDeviceSize offsets[] = {0};
@@ -135,7 +135,7 @@ namespace lve
         }
     }
 
-    std::vector<VkVertexInputBindingDescription> LveModel::Vertex::getBindingDescriptions()
+    std::vector<VkVertexInputBindingDescription> PaiModel::Vertex::getBindingDescriptions()
     {
         std::vector<VkVertexInputBindingDescription> bindingDescriptions(1);
         bindingDescriptions[0].binding = 0;
@@ -144,7 +144,7 @@ namespace lve
         return bindingDescriptions;
     }
 
-    std::vector<VkVertexInputAttributeDescription> LveModel::Vertex::getAttributeDescriptions()
+    std::vector<VkVertexInputAttributeDescription> PaiModel::Vertex::getAttributeDescriptions()
     {
         std::vector<VkVertexInputAttributeDescription> attributeDescriptions{};
 
@@ -156,7 +156,7 @@ namespace lve
         return attributeDescriptions;
     }
 
-    void LveModel::Builder::loadModel(const std::string &filepath)
+    void PaiModel::Builder::loadModel(const std::string &filepath)
     {
         tinyobj::attrib_t attrib;
         std::vector<tinyobj::shape_t> shapes;
