@@ -9,7 +9,7 @@
 namespace lve
 {
 
-#define MAX_LIGHTS 10
+#define MAX_LIGHTS 100
 
     struct PointLight
     {

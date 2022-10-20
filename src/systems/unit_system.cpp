@@ -1,4 +1,4 @@
-#include "point_light_system.hpp"
+#include "unit_system.hpp"
 
 // libs
 #define GLM_FORCE_RADIANS
@@ -14,14 +14,14 @@
 
 namespace lve
 {
-    struct PointLightPushConstants
+    struct UnitPushConstants
     {
         glm::vec4 position{};
         glm::vec4 color{};
         float radius;
     };
 
-    PointLightSystem::PointLightSystem(
+    UnitSystem::UnitSystem(
         LveDevice &device, VkRenderPass renderPass, VkDescriptorSetLayout globalSetLayout)
         : lveDevice{device}
     {
@@ -29,17 +29,17 @@ namespace lve
         createPipeline(renderPass);
     }
 
-    PointLightSystem::~PointLightSystem()
+    UnitSystem::~UnitSystem()
     {
         vkDestroyPipelineLayout(lveDevice.device(), pipelineLayout, nullptr);
     }
 
-    void PointLightSystem::createPipelineLayout(VkDescriptorSetLayout globalSetLayout)
+    void UnitSystem::createPipelineLayout(VkDescriptorSetLayout globalSetLayout)
     {
         VkPushConstantRange pushConstantRange{};
         pushConstantRange.stageFlags = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
         pushConstantRange.offset = 0;
-        pushConstantRange.size = sizeof(PointLightPushConstants);
+        pushConstantRange.size = sizeof(UnitPushConstants);
 
         std::vector<VkDescriptorSetLayout> descriptorSetLayouts{globalSetLayout};
 
@@ -56,7 +56,7 @@ namespace lve
         }
     }
 
-    void PointLightSystem::createPipeline(VkRenderPass renderPass)
+    void UnitSystem::createPipeline(VkRenderPass renderPass)
     {
         assert(pipelineLayout != nullptr && "Cannot create pipeline before pipeline layout");
 
@@ -74,9 +74,9 @@ namespace lve
             pipelineConfig);
     }
 
-    void PointLightSystem::update(FrameInfo &frameInfo, GlobalUbo &ubo)
+    void UnitSystem::update(FrameInfo &frameInfo, GlobalUbo &ubo)
     {
-        auto rotateLight = glm::rotate(glm::mat4(1.f), 0.5f * frameInfo.frameTime, {0.f, -1.f, 0.f});
+        auto rotateLight = glm::rotate(glm::mat4(1.f), 0.5f * frameInfo.frameTime, {-.5f, -1.f, 0.f});
         int lightIndex = 0;
         for (auto &kv : frameInfo.gameObjects)
         {
@@ -98,7 +98,7 @@ namespace lve
         ubo.numLights = lightIndex;
     }
 
-    void PointLightSystem::render(FrameInfo &frameInfo)
+    void UnitSystem::render(FrameInfo &frameInfo)
     {
         std::map<float, LveGameObject::id_t> sorted;
         for (auto &kv : frameInfo.gameObjects)
@@ -112,7 +112,7 @@ namespace lve
             float disSquared = glm::dot(offset, offset);
             sorted[disSquared] = obj.getId();
         }
-        
+
         lvePipeline->bind(frameInfo.commandBuffer);
 
         vkCmdBindDescriptorSets(
@@ -125,13 +125,12 @@ namespace lve
             0,
             nullptr);
 
-        for (auto &kv : frameInfo.gameObjects)
+        for (auto it = sorted.rbegin(); it != sorted.rend(); ++it)
         {
-            auto &obj = kv.second;
-            if (obj.pointLight == nullptr)
-                continue;
+            // use game obj id to find light object
+            auto &obj = frameInfo.gameObjects.at(it->second);
 
-            PointLightPushConstants push{};
+            UnitPushConstants push{};
             push.position = glm::vec4(obj.transform.translation, 1.f);
             push.color = glm::vec4(obj.color, obj.pointLight->lightIntensity);
             push.radius = obj.transform.scale.x;
@@ -141,7 +140,7 @@ namespace lve
                 pipelineLayout,
                 VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT,
                 0,
-                sizeof(PointLightPushConstants),
+                sizeof(UnitPushConstants),
                 &push);
             vkCmdDraw(frameInfo.commandBuffer, 6, 1, 0, 0);
         }

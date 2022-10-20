@@ -1,10 +1,10 @@
 #pragma once
 
-#include "lve_camera.hpp"
-#include "lve_device.hpp"
-#include "lve_frame_info.hpp"
-#include "lve_game_object.hpp"
-#include "lve_pipeline.hpp"
+#include "../lve_camera.hpp"
+#include "../lve_device.hpp"
+#include "../lve_frame_info.hpp"
+#include "../lve_game_object.hpp"
+#include "../lve_pipeline.hpp"
 
 // std
 #include <memory>
@@ -12,17 +12,18 @@
 
 namespace lve
 {
-    class SimpleRenderSystem
+    class UnitSystem
     {
     public:
-        SimpleRenderSystem(
+        UnitSystem(
             LveDevice &device, VkRenderPass renderPass, VkDescriptorSetLayout globalSetLayout);
-        ~SimpleRenderSystem();
+        ~UnitSystem();
 
-        SimpleRenderSystem(const SimpleRenderSystem &) = delete;
-        SimpleRenderSystem &operator=(const SimpleRenderSystem &) = delete;
+        UnitSystem(const UnitSystem &) = delete;
+        UnitSystem &operator=(const UnitSystem &) = delete;
 
-         void renderGameObjects(FrameInfo &frameInfo);
+        void update(FrameInfo &frameInfo, GlobalUbo &ubo);
+        void render(FrameInfo &frameInfo);
 
     private:
         void createPipelineLayout(VkDescriptorSetLayout globalSetLayout);
@@ -33,4 +34,4 @@ namespace lve
         std::unique_ptr<LvePipeline> lvePipeline;
         VkPipelineLayout pipelineLayout;
     };
-} // namespace lve
+}
