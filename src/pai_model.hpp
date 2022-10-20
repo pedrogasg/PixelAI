@@ -1,7 +1,7 @@
 #pragma once
 
-#include "pai_buffer.hpp"
-#include "pai_device.hpp"
+#include "base/pai_buffer.hpp"
+#include "base/pai_device.hpp"
 
 // libs
 #define GLM_FORCE_RADIANS

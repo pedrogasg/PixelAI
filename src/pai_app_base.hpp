@@ -1,10 +1,12 @@
 #pragma once
 
-#include "pai_descriptors.hpp"
-#include "pai_device.hpp"
+#include "base/pai_descriptors.hpp"
+#include "base/pai_buffer.hpp"
+#include "base/pai_camera.hpp"
+#include "base/pai_renderer.hpp"
+#include "base/pai_window.hpp"
+#include "base/pai_device.hpp"
 #include "pai_game_object.hpp"
-#include "pai_renderer.hpp"
-#include "pai_window.hpp"
 
 // std
 #include <memory>

@@ -1,7 +1,7 @@
 #pragma once
 
-#include "pai_game_object.hpp"
-#include "pai_window.hpp"
+#include "../base/pai_window.hpp"
+#include "../pai_game_object.hpp"
 
 namespace pai
 {

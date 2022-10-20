@@ -51,7 +51,8 @@
         "chrono": "cpp",
         "ctime": "cpp",
         "ratio": "cpp",
-        "map": "cpp"
+        "map": "cpp",
+        "cassert": "cpp"
     },
     "C_Cpp.default.cStandard": "c17",
     "C_Cpp.default.cppStandard": "c++17",

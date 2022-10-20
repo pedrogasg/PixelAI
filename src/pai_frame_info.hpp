@@ -1,6 +1,6 @@
 #pragma once
 
-#include "pai_camera.hpp"
+#include "base/pai_camera.hpp"
 #include "pai_game_object.hpp"
 
 // lib

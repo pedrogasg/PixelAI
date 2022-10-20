@@ -1,10 +1,10 @@
 #pragma once
 
-#include "../pai_camera.hpp"
-#include "../pai_device.hpp"
-#include "../pai_frame_info.hpp"
+#include "../base/pai_camera.hpp"
+#include "../base/pai_device.hpp"
+#include "../base/pai_pipeline.hpp"
 #include "../pai_game_object.hpp"
-#include "../pai_pipeline.hpp"
+#include "../pai_frame_info.hpp"
 
 // std
 #include <memory>

@@ -1,8 +1,9 @@
+
 #include "pai_app_base.hpp"
 
-#include "keyboard_movement_controller.hpp"
-#include "pai_buffer.hpp"
-#include "pai_camera.hpp"
+#include "controls/keyboard_movement_controller.hpp"
+
+
 #include "systems/unit_system.hpp"
 
 // libs
