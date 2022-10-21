@@ -1,4 +1,4 @@
-#include "unit_system.hpp"
+#include "simple_render_system.hpp"
 
 // libs
 #define GLM_FORCE_RADIANS
@@ -7,21 +7,20 @@
 #include <glm/gtc/constants.hpp>
 
 // std
-#include <map>
 #include <array>
 #include <cassert>
 #include <stdexcept>
 
 namespace pai
 {
-    struct UnitPushConstants
+
+    struct SimplePushConstantData
     {
-        glm::vec4 position{};
-        glm::vec4 color{};
-        float radius;
+        glm::mat4 modelMatrix{1.f};
+        glm::mat4 normalMatrix{1.f};
     };
 
-    UnitSystem::UnitSystem(
+    SimpleRenderSystem::SimpleRenderSystem(
         PaiDevice &device, VkRenderPass renderPass, VkDescriptorSetLayout globalSetLayout)
         : paiDevice{device}
     {
@@ -29,17 +28,17 @@ namespace pai
         createPipeline(renderPass);
     }
 
-    UnitSystem::~UnitSystem()
+    SimpleRenderSystem::~SimpleRenderSystem()
     {
         vkDestroyPipelineLayout(paiDevice.device(), pipelineLayout, nullptr);
     }
 
-    void UnitSystem::createPipelineLayout(VkDescriptorSetLayout globalSetLayout)
+    void SimpleRenderSystem::createPipelineLayout(VkDescriptorSetLayout globalSetLayout)
     {
         VkPushConstantRange pushConstantRange{};
         pushConstantRange.stageFlags = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
         pushConstantRange.offset = 0;
-        pushConstantRange.size = sizeof(UnitPushConstants);
+        pushConstantRange.size = sizeof(SimplePushConstantData);
 
         std::vector<VkDescriptorSetLayout> descriptorSetLayouts{globalSetLayout};
 
@@ -56,57 +55,25 @@ namespace pai
         }
     }
 
-    void UnitSystem::createPipeline(VkRenderPass renderPass)
+    void SimpleRenderSystem::createPipeline(VkRenderPass renderPass)
     {
         assert(pipelineLayout != nullptr && "Cannot create pipeline before pipeline layout");
 
         PipelineConfigInfo pipelineConfig{};
         PaiPipeline::defaultPipelineConfigInfo(pipelineConfig);
         PaiPipeline::enableAlphaBlending(pipelineConfig);
-        pipelineConfig.attributeDescriptions.clear();
-        pipelineConfig.bindingDescriptions.clear();
         pipelineConfig.renderPass = renderPass;
         pipelineConfig.pipelineLayout = pipelineLayout;
         paiPipeline = std::make_unique<PaiPipeline>(
             paiDevice,
-            "shaders/unit.vert.spv",
-            "shaders/unit.frag.spv",
+            "shaders/simple_shader.vert.spv",
+            "shaders/simple_shader.frag.spv",
             pipelineConfig);
     }
 
-    void UnitSystem::update(FrameInfo &frameInfo, GlobalUbo &ubo)
+    void SimpleRenderSystem::renderGameObjects(
+        FrameInfo &frameInfo)
     {
-        int i = 0;
-        float angle = 0.5f * frameInfo.frameTime;
-        auto rotateLight = glm::rotate(glm::mat4(1.f), angle, {0.f, 0.f, -0.2});
-        for (auto &kv : frameInfo.gameObjects)
-        {
-            auto &obj = kv.second;
-            if (obj.unitPoint == nullptr)
-                continue;
-
-            // update light position
-            
-            //obj.transform.translation = glm::vec3(rotateLight * glm::vec4(obj.transform.translation, 1.f));
-            i++;
-        }
-    }
-
-    void UnitSystem::render(FrameInfo &frameInfo)
-    {
-        std::map<float, PaiGameObject::id_t> sorted;
-        for (auto &kv : frameInfo.gameObjects)
-        {
-            auto &obj = kv.second;
-            if (obj.unitPoint == nullptr)
-                continue;
-
-            // calculate distance
-            auto offset = frameInfo.camera.getPosition() - obj.transform.translation;
-            float disSquared = glm::dot(offset, offset);
-            sorted[disSquared] = obj.getId();
-        }
-
         paiPipeline->bind(frameInfo.commandBuffer);
 
         vkCmdBindDescriptorSets(
@@ -119,24 +86,24 @@ namespace pai
             0,
             nullptr);
 
-        for (auto it = sorted.rbegin(); it != sorted.rend(); ++it)
+        for (auto &kv : frameInfo.gameObjects)
         {
-            // use game obj id to find light object
-            auto &obj = frameInfo.gameObjects.at(it->second);
-
-            UnitPushConstants push{};
-            push.position = glm::vec4(obj.transform.translation, 1.f);
-            push.color = glm::vec4(obj.color, obj.unitPoint->lightIntensity);
-            push.radius = obj.transform.scale.x;
+            auto &obj = kv.second;
+            if (obj.model == nullptr)
+                continue;
+            SimplePushConstantData push{};
+            push.modelMatrix = obj.transform.mat4();
+            push.normalMatrix = obj.transform.normalMatrix();
 
             vkCmdPushConstants(
                 frameInfo.commandBuffer,
                 pipelineLayout,
                 VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT,
                 0,
-                sizeof(UnitPushConstants),
+                sizeof(SimplePushConstantData),
                 &push);
-            vkCmdDraw(frameInfo.commandBuffer, 6, 1, 0, 0);
+            obj.model->bind(frameInfo.commandBuffer);
+            obj.model->draw(frameInfo.commandBuffer);
         }
     }
 

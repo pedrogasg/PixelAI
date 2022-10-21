@@ -11,10 +11,6 @@ struct UnitPoint {
 layout(set = 0, binding = 0) uniform GlobalUbo {
     mat4 projection;
     mat4 view;
-    mat4 invView;
-    vec4 ambientLightColor; // w is intensity
-    UnitPoint unitPoints[10];
-    int numLights;
 } ubo;
 
 layout(push_constant) uniform Push {
@@ -32,5 +28,5 @@ void main() {
     //}
     //float cosDis = 0.5 * (cos(dis * M_PI) + 1.0); // ranges from 1 -> 0
     //outColor = vec4(push.color.xyz + 0.5 * cosDis, cosDis);
-    outColor = push.color + 0.5;
+    outColor = push.color + 0.1;
 }

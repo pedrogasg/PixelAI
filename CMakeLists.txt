@@ -15,7 +15,7 @@ include_directories(external)
 
 set(TINYOBJ_PATH external/tinyobjloader)
 
-file(GLOB_RECURSE SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp)
+file(GLOB_RECURSE SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp ${PROJECT_SOURCE_DIR}/src/**/*.cpp)
 
 add_executable(${PROJECT_NAME} ${SOURCES})
 

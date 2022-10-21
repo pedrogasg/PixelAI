@@ -9,8 +9,6 @@
 namespace pai
 {
 
-#define MAX_LIGHTS 100
-
     struct UnitPoint
     {
         glm::vec4 position{}; // ignore w
@@ -21,10 +19,6 @@ namespace pai
     {
         glm::mat4 projection{1.f};
         glm::mat4 view{1.f};
-        glm::mat4 inverseView{1.f};
-        glm::vec4 ambientLightColor{1.f, 1.f, 1.f, .02f}; // w is intensity
-        UnitPoint unitPoints[MAX_LIGHTS];
-        int numLights;
     };
 
     struct FrameInfo
