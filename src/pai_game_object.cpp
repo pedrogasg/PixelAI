@@ -62,13 +62,13 @@ namespace pai
         };
     }
 
-    PaiGameObject PaiGameObject::makePointLight(float intensity, float radius, glm::vec3 color)
+    PaiGameObject PaiGameObject::makeUnitPoint(float intensity, float radius, glm::vec3 color)
     {
         PaiGameObject gameObj = PaiGameObject::createGameObject();
         gameObj.color = color;
         gameObj.transform.scale.x = radius;
-        gameObj.pointLight = std::make_unique<PointLightComponent>();
-        gameObj.pointLight->lightIntensity = intensity;
+        gameObj.unitPoint = std::make_unique<UnitPointComponent>();
+        gameObj.unitPoint->lightIntensity = intensity;
         return gameObj;
     }
 

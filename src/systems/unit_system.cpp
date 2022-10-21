@@ -69,8 +69,8 @@ namespace pai
         pipelineConfig.pipelineLayout = pipelineLayout;
         paiPipeline = std::make_unique<PaiPipeline>(
             paiDevice,
-            "shaders/point_light.vert.spv",
-            "shaders/point_light.frag.spv",
+            "shaders/unit.vert.spv",
+            "shaders/unit.frag.spv",
             pipelineConfig);
     }
 
@@ -81,7 +81,7 @@ namespace pai
         for (auto &kv : frameInfo.gameObjects)
         {
             auto &obj = kv.second;
-            if (obj.pointLight == nullptr)
+            if (obj.unitPoint == nullptr)
                 continue;
 
             assert(lightIndex < MAX_LIGHTS && "Point lights exceed maximum specified");
@@ -90,8 +90,8 @@ namespace pai
             obj.transform.translation = glm::vec3(rotateLight * glm::vec4(obj.transform.translation, 1.f));
 
             // copy light to ubo
-            ubo.pointLights[lightIndex].position = glm::vec4(obj.transform.translation, 1.f);
-            ubo.pointLights[lightIndex].color = glm::vec4(obj.color, obj.pointLight->lightIntensity);
+            ubo.unitPoints[lightIndex].position = glm::vec4(obj.transform.translation, 1.f);
+            ubo.unitPoints[lightIndex].color = glm::vec4(obj.color, obj.unitPoint->lightIntensity);
 
             lightIndex += 1;
         }
@@ -104,7 +104,7 @@ namespace pai
         for (auto &kv : frameInfo.gameObjects)
         {
             auto &obj = kv.second;
-            if (obj.pointLight == nullptr)
+            if (obj.unitPoint == nullptr)
                 continue;
 
             // calculate distance
@@ -132,7 +132,7 @@ namespace pai
 
             UnitPushConstants push{};
             push.position = glm::vec4(obj.transform.translation, 1.f);
-            push.color = glm::vec4(obj.color, obj.pointLight->lightIntensity);
+            push.color = glm::vec4(obj.color, obj.unitPoint->lightIntensity);
             push.radius = obj.transform.scale.x;
 
             vkCmdPushConstants(

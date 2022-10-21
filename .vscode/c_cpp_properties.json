@@ -1,0 +1,21 @@
+{
+    "configurations": [
+        {
+            "name": "pai",
+            "includePath": [
+                "${workspaceFolder}/**"
+            ],
+            "browse": {
+                "path": [
+                    "${workspaceRoot}",
+                    "${workspaceFolder}/external/tinyobjloader"
+                ],
+                "limitSymbolsToIncludedHeaders": true
+             },
+            "defines": [],
+            "cppStandard": "c++17",
+            "intelliSenseMode": "clang-x64"
+        }
+    ],
+    "version": 4
+}

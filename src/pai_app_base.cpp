@@ -136,11 +136,11 @@ namespace pai
         {
             for (int j = 0; j < lightColors.size()*2; j++)
             {
-                auto pointLight = PaiGameObject::makePointLight(0.4f);
-                pointLight.color = lightColors[i];
-                //pointLight.transform.translation = glm::vec3(rotateLight * glm::vec4(-1.f, -1.f, -1.f, 1.f));
-                pointLight.transform.translation = {(j*.2f) - 1.4f, -i*.2f, 0.f};
-                gameObjects.emplace(pointLight.getId(), std::move(pointLight));
+                auto unitPoint = PaiGameObject::makeUnitPoint(0.4f);
+                unitPoint.color = lightColors[i];
+                //unitPoint.transform.translation = glm::vec3(rotateLight * glm::vec4(-1.f, -1.f, -1.f, 1.f));
+                unitPoint.transform.translation = {(j*.2f) - 1.4f, -i*.2f, 0.f};
+                gameObjects.emplace(unitPoint.getId(), std::move(unitPoint));
             }
         }
     }

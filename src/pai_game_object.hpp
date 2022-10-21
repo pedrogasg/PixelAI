@@ -42,7 +42,7 @@ namespace pai
         glm::mat3 normalMatrix();
     };
 
-    struct PointLightComponent
+    struct UnitPointComponent
     {
         float lightIntensity = 1.0f;
     };
@@ -59,7 +59,7 @@ namespace pai
             return PaiGameObject{currentId++};
         }
 
-        static PaiGameObject makePointLight(
+        static PaiGameObject makeUnitPoint(
             float intensity = 10.f, float radius = 0.1f, glm::vec3 color = glm::vec3(1.f));
 
         PaiGameObject(const PaiGameObject &) = delete;
@@ -73,7 +73,7 @@ namespace pai
         Transform2dComponent transform2d{};
         TransformComponent transform{};
         std::shared_ptr<PaiModel> model{};
-        std::unique_ptr<PointLightComponent> pointLight = nullptr;
+        std::unique_ptr<UnitPointComponent> unitPoint = nullptr;
 
     private:
         PaiGameObject(id_t objId) : id{objId} {}
