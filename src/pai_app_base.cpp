@@ -82,6 +82,7 @@ namespace pai
         auto currentTime = std::chrono::high_resolution_clock::now();
         while (!paiWindow.shouldClose())
         {
+            //glfwPollEvents();
             glfwWaitEvents();
 
             auto newTime = std::chrono::high_resolution_clock::now();
@@ -90,7 +91,8 @@ namespace pai
             currentTime = newTime;
 
             //cameraController.moveInPlaneXZ(paiWindow.getGLFWwindow(), frameTime, viewerObject);
-            state = cameraController.moveInPlaneXY(paiWindow.getGLFWwindow(), state);
+            glm::vec4 actions = gameObjects.begin()->second.pixel->getActions(state);
+            state = cameraController.moveInPlaneXY(paiWindow.getGLFWwindow(), state, actions);
             camera.setViewYXZ(viewerObject.transform.translation, viewerObject.transform.rotation);
 
             float aspect = paiRenderer.getAspectRatio();
@@ -157,7 +159,7 @@ namespace pai
         // // cube.transform.scale = {.5f, .5f, .5f};
         // gameObjects.emplace(cube.getId(), std::move(cube));
 
-        auto pixel = std::make_shared<PaiPixel>(paiDevice, 100, 100);
+        auto pixel = std::make_shared<PaiPixel>(paiDevice, 24, 24);
         auto grid = PaiGameObject::createGameObject();
         grid.pixel = pixel;
 

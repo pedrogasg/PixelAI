@@ -47,6 +47,7 @@ namespace pai
 
     PaiPixel::PaiPixel(PaiDevice &device, const int height, const int width) : paiDevice{device}
     {
+        paiWorld = std::make_unique<PaiWorld>(height, width);
         size = 2.f/height;
         
         std::vector<Vertex> vertices;

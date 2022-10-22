@@ -6,16 +6,16 @@
 namespace pai
 {
 
-    glm::vec2 KeyboardMovementController::moveInPlaneXY(GLFWwindow *window, glm::vec2 state)
+    glm::vec2 KeyboardMovementController::moveInPlaneXY(GLFWwindow *window, glm::vec2 state, glm::vec4 actions)
     {
         if (glfwGetKey(window, keys.moveForward) == GLFW_PRESS)
-            state.y -= 1.f;
+            state.y -= actions.z;
         if (glfwGetKey(window, keys.moveBackward) == GLFW_PRESS)
-            state.y += 1.f;
+            state.y += actions.w;
         if (glfwGetKey(window, keys.moveRight) == GLFW_PRESS)
-            state.x += 1.f;
+            state.x += actions.y;
         if (glfwGetKey(window, keys.moveLeft) == GLFW_PRESS)
-            state.x -= 1.f;
+            state.x -= actions.x;
 
         return state;
     }

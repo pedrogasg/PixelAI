@@ -3,6 +3,8 @@
 #include "base/pai_buffer.hpp"
 #include "base/pai_device.hpp"
 
+#include "pai_world.hpp"
+
 // libs
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
@@ -36,12 +38,14 @@ namespace pai
 
         float getSize(){ return size; };
         glm::vec4 getColor(){ return color; };
+        glm::vec4 getActions(glm::vec2 state){ return paiWorld->actions(state); };
 
     private:
         void createVertexBuffers(const std::vector<Vertex> &vertices);
         
 
         PaiDevice &paiDevice;
+        std::unique_ptr<PaiWorld> paiWorld;
 
         std::unique_ptr<PaiBuffer> vertexBuffer;
         uint32_t vertexCount;
