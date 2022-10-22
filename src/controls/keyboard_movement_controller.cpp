@@ -10,11 +10,11 @@ namespace pai
     {
         if (glfwGetKey(window, keys.moveForward) == GLFW_PRESS)
             state.y -= actions.z;
-        if (glfwGetKey(window, keys.moveBackward) == GLFW_PRESS)
+        else if (glfwGetKey(window, keys.moveBackward) == GLFW_PRESS)
             state.y += actions.w;
-        if (glfwGetKey(window, keys.moveRight) == GLFW_PRESS)
+        else if (glfwGetKey(window, keys.moveRight) == GLFW_PRESS)
             state.x += actions.y;
-        if (glfwGetKey(window, keys.moveLeft) == GLFW_PRESS)
+        else if (glfwGetKey(window, keys.moveLeft) == GLFW_PRESS)
             state.x -= actions.x;
 
         return state;
