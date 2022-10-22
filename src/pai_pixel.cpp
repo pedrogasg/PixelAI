@@ -42,12 +42,14 @@ namespace pai
     {
         std::vector<VkVertexInputAttributeDescription> attributeDescriptions{};
         attributeDescriptions.push_back({0, 0, VK_FORMAT_R32G32B32A32_SFLOAT, offsetof(Vertex, position)});
+        attributeDescriptions.push_back({1, 0, VK_FORMAT_R32G32B32A32_SFLOAT, offsetof(Vertex, state)});
         return attributeDescriptions;
     }
 
-    PaiPixel::PaiPixel(PaiDevice &device, const int height, const int width) : paiDevice{device}
+    PaiPixel::PaiPixel(PaiDevice &device, const int height, const int width,std::vector<glm::vec2> walls) : paiDevice{device}
     {
         paiWorld = std::make_unique<PaiWorld>(height, width);
+        paiWorld->addwalls(walls);
         size = 2.f/height;
         
         std::vector<Vertex> vertices;
@@ -57,6 +59,11 @@ namespace pai
             {
                 vertices.push_back({{(i * size)-((height/2.f) * size), (j * size)-((width/2.f) * size), i, j }});
             }
+        }
+        for (int i = 0; i < walls.size(); i++)
+        {
+            auto wall = walls[i];
+            vertices[(wall.y * height) + wall.x].state = glm::vec4{1};
         }
         createVertexBuffers(vertices);
         size = size * 0.90f;

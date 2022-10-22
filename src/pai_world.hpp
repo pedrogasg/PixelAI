@@ -14,6 +14,7 @@ namespace pai
         ~PaiWorld();
 
         glm::vec4 actions(glm::vec2 state);
+        void addwalls(std::vector<glm::vec2> walls);
     };
 
 } // namespace pai

@@ -1,6 +1,7 @@
 #version 450
 
 layout(location = 0) in vec4 position;
+layout(location = 1) in vec4 state;
 
 layout(location = 0) out vec4 cellColor;
 
@@ -19,6 +20,13 @@ void main() {
     if(position.z == ubo.agent.x && position.w == ubo.agent.y) {
         cellColor = vec4(0.5f, 0.3f, 0.2f, 0.5f);
     } else {
-        cellColor =  push.color;
+        if(state.x == 1.0f)
+        {
+            cellColor = vec4(0.f, 0.f, 0.f, 0.5f);
+        }
+        else
+        {
+            cellColor =  push.color;
+        }
     }
 }

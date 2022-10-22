@@ -17,11 +17,21 @@ namespace pai
         int top = state.y <= 0 ? 0 : state.y - 1 ;
         int bottom = state.y >= worldHeight -1 ? worldHeight -1: state.y + 1 ;
         return {
-            left == state.x ? 0 : worldState[left][int(state.x)],
-            right == state.x ? 0 : worldState[right][int(state.x)],
-            top == state.y ? 0 : worldState[top][int(state.y)],
-            bottom == state.y ? 0 : worldState[bottom][int(state.y)]
+            left == state.x ? 0 : worldState[int(state.y)][left],
+            right == state.x ? 0 : worldState[int(state.y)][right],
+            top == state.y ? 0 : worldState[top][int(state.x)],
+            bottom == state.y ? 0 : worldState[bottom][int(state.x)]
         };
+    }
+
+    void PaiWorld::addwalls(std::vector<glm::vec2> walls)
+    {
+        for (int i = 0; i < walls.size(); i++)
+        {
+            auto wall = walls[i];
+            worldState[wall.x][wall.y] = 0;
+        }
+
     }
 
 }

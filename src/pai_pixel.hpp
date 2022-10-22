@@ -22,12 +22,13 @@ namespace pai
         struct Vertex
         {
             glm::vec4 position{};
+            glm::vec4 state{};
             static std::vector<VkVertexInputBindingDescription> getBindingDescriptions();
             static std::vector<VkVertexInputAttributeDescription> getAttributeDescriptions();
 
         };
 
-        PaiPixel(PaiDevice &device, const int height, const int width);
+        PaiPixel(PaiDevice &device, const int height, const int width, std::vector<glm::vec2> walls);
         ~PaiPixel();
 
         PaiPixel(const PaiPixel &) = delete;

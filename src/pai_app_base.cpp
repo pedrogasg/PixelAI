@@ -159,7 +159,25 @@ namespace pai
         // // cube.transform.scale = {.5f, .5f, .5f};
         // gameObjects.emplace(cube.getId(), std::move(cube));
 
-        auto pixel = std::make_shared<PaiPixel>(paiDevice, 24, 24);
+        std::vector<glm::vec2> walls = {
+            {1,10},
+            {2,10},
+            {3,10},
+            {4,10},
+            {5,10},
+            {6,10},
+            {7,10},
+            {8,10},
+            {9,10},
+            {10,10},
+            {11,10},
+            {12,10},
+            {13,10},
+            {14,10},
+            {15,10},
+            {16,10},};
+
+        auto pixel = std::make_shared<PaiPixel>(paiDevice, 24, 24, walls);
         auto grid = PaiGameObject::createGameObject();
         grid.pixel = pixel;
 
