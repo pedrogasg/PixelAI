@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.11.0)
 
-set(NAME LveEngine)
+set(NAME PaiEngine)
 
 project(${NAME} VERSION 0.0.1)
 
@@ -15,7 +15,7 @@ include_directories(external)
 
 set(TINYOBJ_PATH external/tinyobjloader)
 
-file(GLOB_RECURSE SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp)
+file(GLOB_RECURSE SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp ${PROJECT_SOURCE_DIR}/src/**/*.cpp)
 
 add_executable(${PROJECT_NAME} ${SOURCES})
 
@@ -39,6 +39,7 @@ find_program(GLSL_VALIDATOR glslc)
 # get all .vert and .frag files in shaders directory
 file(GLOB_RECURSE GLSL_SOURCE_FILES
   "${PROJECT_SOURCE_DIR}/shaders/*.frag"
+  "${PROJECT_SOURCE_DIR}/shaders/*.geom"
   "${PROJECT_SOURCE_DIR}/shaders/*.vert"
 )
 

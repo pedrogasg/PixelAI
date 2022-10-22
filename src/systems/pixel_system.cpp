@@ -1,4 +1,4 @@
-#include "simple_render_system.hpp"
+#include "pixel_system.hpp"
 
 // libs
 #define GLM_FORCE_RADIANS
@@ -14,13 +14,13 @@
 namespace pai
 {
 
-    struct SimplePushConstantData
+    struct PixelPush
     {
-        glm::mat4 modelMatrix{1.f};
-        glm::mat4 normalMatrix{1.f};
+        glm::vec4 color{};
+        float size;
     };
 
-    SimpleRenderSystem::SimpleRenderSystem(
+    PixelSystem::PixelSystem(
         PaiDevice &device, VkRenderPass renderPass, VkDescriptorSetLayout globalSetLayout)
         : paiDevice{device}
     {
@@ -28,17 +28,17 @@ namespace pai
         createPipeline(renderPass);
     }
 
-    SimpleRenderSystem::~SimpleRenderSystem()
+    PixelSystem::~PixelSystem()
     {
         vkDestroyPipelineLayout(paiDevice.device(), pipelineLayout, nullptr);
     }
 
-    void SimpleRenderSystem::createPipelineLayout(VkDescriptorSetLayout globalSetLayout)
+    void PixelSystem::createPipelineLayout(VkDescriptorSetLayout globalSetLayout)
     {
         VkPushConstantRange pushConstantRange{};
-        pushConstantRange.stageFlags = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
+        pushConstantRange.stageFlags = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_GEOMETRY_BIT| VK_SHADER_STAGE_FRAGMENT_BIT;
         pushConstantRange.offset = 0;
-        pushConstantRange.size = sizeof(SimplePushConstantData);
+        pushConstantRange.size = sizeof(PixelPush);
 
         std::vector<VkDescriptorSetLayout> descriptorSetLayouts{globalSetLayout};
 
@@ -55,23 +55,24 @@ namespace pai
         }
     }
 
-    void SimpleRenderSystem::createPipeline(VkRenderPass renderPass)
+    void PixelSystem::createPipeline(VkRenderPass renderPass)
     {
         assert(pipelineLayout != nullptr && "Cannot create pipeline before pipeline layout");
 
         PipelineConfigInfo pipelineConfig{};
-        PaiPipeline::defaultPipelineConfigInfo(pipelineConfig);
+        PaiPipeline::pixelPipelineConfigInfo(pipelineConfig);
         PaiPipeline::enableAlphaBlending(pipelineConfig);
         pipelineConfig.renderPass = renderPass;
         pipelineConfig.pipelineLayout = pipelineLayout;
         paiPipeline = std::make_unique<PaiPipeline>(
             paiDevice,
-            "shaders/simple_shader.vert.spv",
-            "shaders/simple_shader.frag.spv",
+            "shaders/pixel.vert.spv",
+            "shaders/pixel.geom.spv",
+            "shaders/pixel.frag.spv",
             pipelineConfig);
     }
 
-    void SimpleRenderSystem::render(
+    void PixelSystem::render(
         FrameInfo &frameInfo)
     {
         paiPipeline->bind(frameInfo.commandBuffer);
@@ -89,21 +90,22 @@ namespace pai
         for (auto &kv : frameInfo.gameObjects)
         {
             auto &obj = kv.second;
-            if (obj.model == nullptr)
+            if (obj.pixel == nullptr)
                 continue;
-            SimplePushConstantData push{};
-            push.modelMatrix = obj.transform.mat4();
-            push.normalMatrix = obj.transform.normalMatrix();
+            PixelPush push{};
+            push.color = obj.pixel->getColor();
+            push.size = obj.pixel->getSize();
 
             vkCmdPushConstants(
                 frameInfo.commandBuffer,
                 pipelineLayout,
-                VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT,
+                VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_GEOMETRY_BIT | VK_SHADER_STAGE_FRAGMENT_BIT,
                 0,
-                sizeof(SimplePushConstantData),
+                sizeof(PixelPush),
                 &push);
-            obj.model->bind(frameInfo.commandBuffer);
-            obj.model->draw(frameInfo.commandBuffer);
+
+            obj.pixel->bind(frameInfo.commandBuffer);
+            obj.pixel->draw(frameInfo.commandBuffer);
         }
     }
 

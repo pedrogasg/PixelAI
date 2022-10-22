@@ -13,15 +13,15 @@
 
 namespace pai
 {
-    class SimpleRenderSystem
+    class PixelSystem
     {
     public:
-        SimpleRenderSystem(
+        PixelSystem(
             PaiDevice &device, VkRenderPass renderPass, VkDescriptorSetLayout globalSetLayout);
-        ~SimpleRenderSystem();
+        ~PixelSystem();
 
-        SimpleRenderSystem(const SimpleRenderSystem &) = delete;
-        SimpleRenderSystem &operator=(const SimpleRenderSystem &) = delete;
+        PixelSystem(const PixelSystem &) = delete;
+        PixelSystem &operator=(const PixelSystem &) = delete;
 
          void render(FrameInfo &frameInfo);
 
