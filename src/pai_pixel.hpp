@@ -34,6 +34,9 @@ namespace pai
         void draw(VkCommandBuffer commandBuffer);
         void bind(VkCommandBuffer commandBuffer);
 
+        float getSize(){ return size; };
+        glm::vec4 getColor(){ return color; };
+
     private:
         void createVertexBuffers(const std::vector<Vertex> &vertices);
         
@@ -42,5 +45,8 @@ namespace pai
 
         std::unique_ptr<PaiBuffer> vertexBuffer;
         uint32_t vertexCount;
+
+        float size;
+        glm::vec4 color = {.9f, .9f, .9f, .5f};
     };
 }

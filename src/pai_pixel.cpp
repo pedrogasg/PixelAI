@@ -47,15 +47,18 @@ namespace pai
 
     PaiPixel::PaiPixel(PaiDevice &device, const int height, const int width) : paiDevice{device}
     {
+        size = 2.f/height;
+        
         std::vector<Vertex> vertices;
         for (int i = 0; i < height; i++)
         {
-            for (int j = 0; j < height; j++)
+            for (int j = 0; j < width; j++)
             {
-                vertices.push_back({{i * 0.2, j * 0.2}});
+                vertices.push_back({{(i * size)-((height/2.f) * size), (j * size)-((width/2.f) * size)}});
             }
         }
         createVertexBuffers(vertices);
+        size = size * 0.90f;
     }
 
     PaiPixel::~PaiPixel() {}
@@ -63,7 +66,6 @@ namespace pai
     void PaiPixel::createVertexBuffers(const std::vector<Vertex> &vertices)
     {
         vertexCount = static_cast<uint32_t>(vertices.size());
-        assert(vertexCount >= 3 && "Vertex count must be at least 3");
         VkDeviceSize bufferSize = sizeof(vertices[0]) * vertexCount;
         uint32_t vertexSize = sizeof(vertices[0]);
 

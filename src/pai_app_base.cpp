@@ -147,14 +147,14 @@ namespace pai
 
     void PaiAppBase::loadGameObjects()
     {
-        std::shared_ptr<PaiModel> lveModel = createSquareModel(paiDevice, {.0f, .0f, .0f});
-        auto cube = PaiGameObject::createGameObject();
-        cube.model = lveModel;
-        cube.transform.translation = {.0f, .0f, .0f};
-        // cube.transform.scale = {.5f, .5f, .5f};
-        gameObjects.emplace(cube.getId(), std::move(cube));
+        // std::shared_ptr<PaiModel> lveModel = createSquareModel(paiDevice, {.0f, .0f, .0f});
+        // auto cube = PaiGameObject::createGameObject();
+        // cube.model = lveModel;
+        // cube.transform.translation = {.0f, .0f, .0f};
+        // // cube.transform.scale = {.5f, .5f, .5f};
+        // gameObjects.emplace(cube.getId(), std::move(cube));
 
-        auto pixel = std::make_shared<PaiPixel>(paiDevice, 5, 5);
+        auto pixel = std::make_shared<PaiPixel>(paiDevice, 24, 24);
         auto grid = PaiGameObject::createGameObject();
         grid.pixel = pixel;
 

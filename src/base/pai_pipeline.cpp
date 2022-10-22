@@ -164,7 +164,7 @@ namespace pai
         VkShaderModule fragShaderModule;
 
         createShaderModule(vertCode, &vertShaderModule);
-        createShaderModule(vertCode, &geomShaderModule);
+        createShaderModule(geomCode, &geomShaderModule);
         createShaderModule(fragCode, &fragShaderModule);
 
         VkPipelineShaderStageCreateInfo shaderStages[3];
@@ -176,15 +176,15 @@ namespace pai
         shaderStages[0].pNext = nullptr;
         shaderStages[0].pSpecializationInfo = nullptr;
         shaderStages[1].sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-        shaderStages[1].stage = VK_SHADER_STAGE_GEOMETRY_BIT;
-        shaderStages[1].module = geomShaderModule;
+        shaderStages[1].stage = VK_SHADER_STAGE_FRAGMENT_BIT;
+        shaderStages[1].module = fragShaderModule;
         shaderStages[1].pName = "main";
         shaderStages[1].flags = 0;
         shaderStages[1].pNext = nullptr;
         shaderStages[1].pSpecializationInfo = nullptr;
         shaderStages[2].sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-        shaderStages[2].stage = VK_SHADER_STAGE_FRAGMENT_BIT;
-        shaderStages[2].module = fragShaderModule;
+        shaderStages[2].stage = VK_SHADER_STAGE_GEOMETRY_BIT;
+        shaderStages[2].module = geomShaderModule;
         shaderStages[2].pName = "main";
         shaderStages[2].flags = 0;
         shaderStages[2].pNext = nullptr;
@@ -219,7 +219,7 @@ namespace pai
 
         pipelineInfo.basePipelineHandle = VK_NULL_HANDLE; // Optional
         pipelineInfo.basePipelineIndex = -1;              // Optional
-
+ 
         if (vkCreateGraphicsPipelines(
                 paiDevice.device(),
                 VK_NULL_HANDLE,

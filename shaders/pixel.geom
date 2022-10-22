@@ -6,6 +6,7 @@ layout(points) in;
 
 layout(push_constant) uniform Push {
     vec4 color;
+    float size;
 } push;
 
 void main() {
@@ -15,18 +16,18 @@ void main() {
     EmitVertex();
 
     gl_Position = pos;
-    gl_Position.y += 1.0;
+    gl_Position.y += push.size;
     gl_Position = gl_Position;
     EmitVertex();
 
     gl_Position = pos;
-    gl_Position.x += 1.0;
+    gl_Position.x += push.size;
     gl_Position = gl_Position;
     EmitVertex();
 
     gl_Position = pos;
-    gl_Position.x += 1.0;
-    gl_Position.y += 1.0;
+    gl_Position.x += push.size;
+    gl_Position.y += push.size;
     gl_Position = gl_Position;
     EmitVertex();
 

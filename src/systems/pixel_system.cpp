@@ -14,9 +14,10 @@
 namespace pai
 {
 
-    struct PixelColor
+    struct PixelPush
     {
         glm::vec4 color{};
+        float size;
     };
 
     PixelSystem::PixelSystem(
@@ -37,7 +38,7 @@ namespace pai
         VkPushConstantRange pushConstantRange{};
         pushConstantRange.stageFlags = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_GEOMETRY_BIT| VK_SHADER_STAGE_FRAGMENT_BIT;
         pushConstantRange.offset = 0;
-        pushConstantRange.size = sizeof(PixelColor);
+        pushConstantRange.size = sizeof(PixelPush);
 
         std::vector<VkDescriptorSetLayout> descriptorSetLayouts{globalSetLayout};
 
@@ -91,16 +92,18 @@ namespace pai
             auto &obj = kv.second;
             if (obj.pixel == nullptr)
                 continue;
-            PixelColor push{};
-            push.color = {.1f, .8f, .1f, .5f};
+            PixelPush push{};
+            push.color = obj.pixel->getColor();
+            push.size = obj.pixel->getSize();
 
             vkCmdPushConstants(
                 frameInfo.commandBuffer,
                 pipelineLayout,
                 VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_GEOMETRY_BIT | VK_SHADER_STAGE_FRAGMENT_BIT,
                 0,
-                sizeof(PixelColor),
+                sizeof(PixelPush),
                 &push);
+
             obj.pixel->bind(frameInfo.commandBuffer);
             obj.pixel->draw(frameInfo.commandBuffer);
         }
