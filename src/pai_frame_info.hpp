@@ -17,8 +17,7 @@ namespace pai
 
     struct GlobalUbo
     {
-        glm::mat4 projection{1.f};
-        glm::mat4 view{1.f};
+        glm::vec2 agent{};
     };
 
     struct FrameInfo

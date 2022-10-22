@@ -6,6 +6,20 @@
 namespace pai
 {
 
+    glm::vec2 KeyboardMovementController::moveInPlaneXY(GLFWwindow *window, glm::vec2 state)
+    {
+        if (glfwGetKey(window, keys.moveForward) == GLFW_PRESS)
+            state.y -= 1.f;
+        if (glfwGetKey(window, keys.moveBackward) == GLFW_PRESS)
+            state.y += 1.f;
+        if (glfwGetKey(window, keys.moveRight) == GLFW_PRESS)
+            state.x += 1.f;
+        if (glfwGetKey(window, keys.moveLeft) == GLFW_PRESS)
+            state.x -= 1.f;
+
+        return state;
+    }
+
     void KeyboardMovementController::moveInPlaneXZ(
         GLFWwindow *window, float dt, PaiGameObject &gameObject)
     {

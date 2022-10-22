@@ -35,6 +35,7 @@ namespace pai
 
     void PaiAppBase::run()
     {
+        glm::vec2 state = {0.f,0.f};
         std::vector<std::unique_ptr<PaiBuffer>> uboBuffers(PaiSwapChain::MAX_FRAMES_IN_FLIGHT);
         for (int i = 0; i < uboBuffers.size(); i++)
         {
@@ -81,14 +82,15 @@ namespace pai
         auto currentTime = std::chrono::high_resolution_clock::now();
         while (!paiWindow.shouldClose())
         {
-            glfwPollEvents();
+            glfwWaitEvents();
 
             auto newTime = std::chrono::high_resolution_clock::now();
             float frameTime =
                 std::chrono::duration<float, std::chrono::seconds::period>(newTime - currentTime).count();
             currentTime = newTime;
 
-            cameraController.moveInPlaneXZ(paiWindow.getGLFWwindow(), frameTime, viewerObject);
+            //cameraController.moveInPlaneXZ(paiWindow.getGLFWwindow(), frameTime, viewerObject);
+            state = cameraController.moveInPlaneXY(paiWindow.getGLFWwindow(), state);
             camera.setViewYXZ(viewerObject.transform.translation, viewerObject.transform.rotation);
 
             float aspect = paiRenderer.getAspectRatio();
@@ -107,8 +109,9 @@ namespace pai
 
                 // update
                 GlobalUbo ubo{};
-                ubo.projection = camera.getProjection();
-                ubo.view = camera.getView();
+                ubo.agent = state;
+                //ubo.projection = camera.getProjection();
+                //ubo.view = camera.getView();
                 uboBuffers[frameIndex]->writeToBuffer(&ubo);
                 uboBuffers[frameIndex]->flush();
 
@@ -154,7 +157,7 @@ namespace pai
         // // cube.transform.scale = {.5f, .5f, .5f};
         // gameObjects.emplace(cube.getId(), std::move(cube));
 
-        auto pixel = std::make_shared<PaiPixel>(paiDevice, 24, 24);
+        auto pixel = std::make_shared<PaiPixel>(paiDevice, 100, 100);
         auto grid = PaiGameObject::createGameObject();
         grid.pixel = pixel;
 

@@ -41,7 +41,7 @@ namespace pai
     std::vector<VkVertexInputAttributeDescription> PaiPixel::Vertex::getAttributeDescriptions()
     {
         std::vector<VkVertexInputAttributeDescription> attributeDescriptions{};
-        attributeDescriptions.push_back({0, 0, VK_FORMAT_R32G32_SFLOAT, offsetof(Vertex, position)});
+        attributeDescriptions.push_back({0, 0, VK_FORMAT_R32G32B32A32_SFLOAT, offsetof(Vertex, position)});
         return attributeDescriptions;
     }
 
@@ -54,7 +54,7 @@ namespace pai
         {
             for (int j = 0; j < width; j++)
             {
-                vertices.push_back({{(i * size)-((height/2.f) * size), (j * size)-((width/2.f) * size)}});
+                vertices.push_back({{(i * size)-((height/2.f) * size), (j * size)-((width/2.f) * size), i, j }});
             }
         }
         createVertexBuffers(vertices);

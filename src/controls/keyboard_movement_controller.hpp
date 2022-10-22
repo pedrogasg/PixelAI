@@ -23,6 +23,7 @@ namespace pai
         };
 
         void moveInPlaneXZ(GLFWwindow *window, float dt, PaiGameObject &gameObject);
+        glm::vec2 moveInPlaneXY(GLFWwindow *window, glm::vec2 state);
 
         KeyMappings keys{};
         float moveSpeed{3.f};

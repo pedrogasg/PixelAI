@@ -19,7 +19,7 @@ namespace pai
     public:
         struct Vertex
         {
-            glm::vec2 position{};
+            glm::vec4 position{};
             static std::vector<VkVertexInputBindingDescription> getBindingDescriptions();
             static std::vector<VkVertexInputAttributeDescription> getAttributeDescriptions();
 
