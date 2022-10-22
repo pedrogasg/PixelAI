@@ -1,10 +1,11 @@
+
 #pragma once
 
 #include "../base/pai_camera.hpp"
 #include "../base/pai_device.hpp"
-#include "../base/pai_pipeline.hpp"
-#include "../pai_game_object.hpp"
 #include "../pai_frame_info.hpp"
+#include "../pai_game_object.hpp"
+#include "../base/pai_pipeline.hpp"
 
 // std
 #include <memory>
@@ -12,18 +13,17 @@
 
 namespace pai
 {
-    class UnitSystem
+    class PixelSystem
     {
     public:
-        UnitSystem(
+        PixelSystem(
             PaiDevice &device, VkRenderPass renderPass, VkDescriptorSetLayout globalSetLayout);
-        ~UnitSystem();
+        ~PixelSystem();
 
-        UnitSystem(const UnitSystem &) = delete;
-        UnitSystem &operator=(const UnitSystem &) = delete;
+        PixelSystem(const PixelSystem &) = delete;
+        PixelSystem &operator=(const PixelSystem &) = delete;
 
-        void update(FrameInfo &frameInfo, GlobalUbo &ubo);
-        void render(FrameInfo &frameInfo);
+         void render(FrameInfo &frameInfo);
 
     private:
         void createPipelineLayout(VkDescriptorSetLayout globalSetLayout);

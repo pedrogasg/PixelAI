@@ -1,6 +1,7 @@
 #pragma once
 
 #include "pai_model.hpp"
+#include "pai_pixel.hpp"
 
 // libs
 #include <glm/gtc/matrix_transform.hpp>
@@ -42,11 +43,7 @@ namespace pai
         glm::mat3 normalMatrix();
     };
 
-    struct UnitPointComponent
-    {
-        float lightIntensity = 1.0f;
-    };
-
+ 
     class PaiGameObject
     {
     public:
@@ -59,9 +56,6 @@ namespace pai
             return PaiGameObject{currentId++};
         }
 
-        static PaiGameObject makeUnitPoint(
-            float intensity = 10.f, float radius = 0.1f, glm::vec3 color = glm::vec3(1.f));
-
         PaiGameObject(const PaiGameObject &) = delete;
         PaiGameObject &operator=(const PaiGameObject &) = delete;
         PaiGameObject(PaiGameObject &&) = default;
@@ -73,7 +67,7 @@ namespace pai
         Transform2dComponent transform2d{};
         TransformComponent transform{};
         std::shared_ptr<PaiModel> model{};
-        std::unique_ptr<UnitPointComponent> unitPoint = nullptr;
+        std::shared_ptr<PaiPixel> pixel = nullptr;
 
     private:
         PaiGameObject(id_t objId) : id{objId} {}

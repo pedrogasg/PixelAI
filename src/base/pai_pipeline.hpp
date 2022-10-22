@@ -35,24 +35,32 @@ namespace pai
     private:
         PaiDevice &paiDevice;
         VkPipeline graphicsPipeline;
-        VkShaderModule vertShaderModule;
-        VkShaderModule fragShaderModule;
 
         static std::vector<char> readFile(const std::string &filename);
-        void createGraphicsPipeline(const std::string &vertFilepath, const std::string &fragFilepath, const PipelineConfigInfo &configInfo);
+        void createGraphicsPipeline(
+            const std::string &vertFilepath,
+            const std::string &fragFilepath,
+            const PipelineConfigInfo &configInfo);
+        void createGraphicsPipeline(
+            const std::string &vertFilepath,
+            const std::string &geomFilepath,
+            const std::string &fragFilepath,
+            const PipelineConfigInfo &configInfo);
         void createShaderModule(const std::vector<char> &code, VkShaderModule *shaderModule);
 
     public:
         PaiPipeline(PaiDevice &device, const std::string &vertFilepath, const std::string &fragFilepath, const PipelineConfigInfo &configInfo);
+        PaiPipeline(PaiDevice &device, const std::string &vertFilepath, const std::string &geomFilepath, const std::string &fragFilepath, const PipelineConfigInfo &configInfo);
+
         ~PaiPipeline();
 
         PaiPipeline(const PaiPipeline &) = delete;
         PaiPipeline &operator=(const PaiPipeline &) = delete;
 
         void bind(VkCommandBuffer commandBuffer);
-
+        static void pixelPipelineConfigInfo(PipelineConfigInfo &configInfo);
         static void defaultPipelineConfigInfo(PipelineConfigInfo &configInfo);
-        static void enableAlphaBlending(PipelineConfigInfo& configInfo);
+        static void enableAlphaBlending(PipelineConfigInfo &configInfo);
     };
 
 }
