@@ -6,6 +6,7 @@
 #include <glm/gtx/hash.hpp>
 
 // std
+#include <iostream>
 #include <cassert>
 #include <cstring>
 #include <unordered_map>
@@ -46,18 +47,18 @@ namespace pai
         return attributeDescriptions;
     }
 
-    PaiPixel::PaiPixel(PaiDevice &device, const int height, const int width,std::vector<glm::vec2> walls) : paiDevice{device}
+    PaiPixel::PaiPixel(PaiDevice &device, const int height, const int width, std::vector<glm::vec2> walls) 
+    : paiDevice{device},
+    vertices(height * width)
     {
         paiWorld = std::make_unique<PaiWorld>(height, width);
-        paiWorld->addwalls(walls);
-        size = 2.f/height;
-        
-        std::vector<Vertex> vertices;
+        paiWorld->addStates(walls);
+        size = 2.f / height;
         for (int i = 0; i < height; i++)
         {
             for (int j = 0; j < width; j++)
             {
-                vertices.push_back({{(i * size)-((height/2.f) * size), (j * size)-((width/2.f) * size), i, j }});
+                vertices[(i * height) + j] = {{(i * size) - ((height / 2.f) * size), (j * size) - ((width / 2.f) * size), i, j}};
             }
         }
         for (int i = 0; i < walls.size(); i++)
@@ -65,8 +66,29 @@ namespace pai
             auto wall = walls[i];
             vertices[(wall.y * height) + wall.x].state = glm::vec4{1};
         }
+        uint32_t count = static_cast<uint32_t>(vertices.size());
         createVertexBuffers(vertices);
         size = size * 0.90f;
+    }
+    void PaiPixel::addState(glm::vec2 state)
+    {
+        vertices[(state.x * paiWorld->getHeight()) + state.y].state = glm::vec4{1};
+        vertexCount = static_cast<uint32_t>(vertices.size());
+        VkDeviceSize bufferSize = sizeof(vertices[0]) * vertexCount;
+        uint32_t vertexSize = sizeof(vertices[0]);
+
+        PaiBuffer stagingBuffer{
+            paiDevice,
+            vertexSize,
+            vertexCount,
+            VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+            VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+        };
+
+        stagingBuffer.map();
+        stagingBuffer.writeToBuffer((void *)vertices.data());
+        paiDevice.copyBuffer(stagingBuffer.getBuffer(), vertexBuffer->getBuffer(), bufferSize);
+        paiWorld->addState(glm::vec2(state.y, state.x));
     }
 
     PaiPixel::~PaiPixel() {}
@@ -103,7 +125,6 @@ namespace pai
         VkBuffer buffers[] = {vertexBuffer->getBuffer()};
         VkDeviceSize offsets[] = {0};
         vkCmdBindVertexBuffers(commandBuffer, 0, 1, buffers, offsets);
-
     }
 
     void PaiPixel::draw(VkCommandBuffer commandBuffer)

@@ -14,7 +14,9 @@ namespace pai
         ~PaiWorld();
 
         glm::vec4 actions(glm::vec2 state);
-        void addwalls(std::vector<glm::vec2> walls);
+        void addStates(std::vector<glm::vec2> states, int stateValue = 0);
+        void addState(glm::vec2 state, int stateValue = 0);
+        int getHeight(){ return worldHeight; };
     };
 
 } // namespace pai

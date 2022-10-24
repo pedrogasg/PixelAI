@@ -40,6 +40,7 @@ namespace pai
         float getSize(){ return size; };
         glm::vec4 getColor(){ return color; };
         glm::vec4 getActions(glm::vec2 state){ return paiWorld->actions(state); };
+        void addState(glm::vec2 state);
 
     private:
         void createVertexBuffers(const std::vector<Vertex> &vertices);
@@ -50,6 +51,7 @@ namespace pai
 
         std::unique_ptr<PaiBuffer> vertexBuffer;
         uint32_t vertexCount;
+        std::vector<Vertex> vertices;
 
         float size;
         glm::vec4 color = {.9f, .9f, .9f, .5f};
